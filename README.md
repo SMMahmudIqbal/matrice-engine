@@ -2,6 +2,9 @@
 
 An interactive, high-precision food engineering and nutrition intelligence suite. Built strictly against the United States Food and Drug Administration (FDA) modernized 2016 label guidelines (**21 CFR § 101.9**) and statutory nutrient content claim regulations (**21 CFR § 101 Subpart D**).
 
+🌐 **Live Deployment:** [https://fda-nutrition-label-generator.vercel.app](https://fda-nutrition-label-generator.vercel.app)  
+📦 **GitHub Repository:** [https://github.com/SMMahmudIqbal/matrice-engine](https://github.com/SMMahmudIqbal/matrice-engine)
+
 Designed with the **Premium Fluidity / Organic Intelligence** design system, combining editorial elegance (*Playfair Display*), technical precision (*JetBrains Mono*), and legible structure (*Inter*).
 
 ---
