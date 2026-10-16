@@ -183,7 +183,37 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #4338ca;
     }
+
+    /* Print Styles: ONLY print the FDA label cleanly on one page */
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      #fdaLabelPrintArea, #fdaLabelPrintArea * {
+        visibility: visible !important;
+      }
+      #fdaLabelPrintArea {
+        position: absolute !important;
+        left: 50% !important;
+        top: 20px !important;
+        transform: translateX(-50%) !important;
+        box-shadow: none !important;
+        border: 2px solid #000000 !important;
+        width: 320px !important;
+        page-break-inside: avoid !important;
+      }
+      @page {
+        size: auto;
+        margin: 10mm;
+      }
+    }
   </style>
+
+  <!-- html2canvas for High-Res PNG / JPG Image Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
 
@@ -207,10 +237,15 @@
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           <span>FDA 2016 Compliant Engine</span>
         </div>
-        <button onclick="printOrExportLabel()" class="btn-pulse inline-flex items-center space-x-2 bg-charcoal hover:bg-neutral-800 text-cream px-4 py-2 rounded-lg text-xs font-mono uppercase tracking-widest font-medium shadow-sm">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          <span>Print / Export Label</span>
-        </button>
+        <div class="flex items-center space-x-2">
+          <button onclick="downloadLabelImage('png')" class="btn-pulse inline-flex items-center space-x-1.5 bg-indigoAccent hover:bg-indigo-700 text-cream px-3.5 py-2 rounded-lg text-xs font-mono uppercase tracking-wider font-medium shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Save PNG</span>
+          </button>
+          <button onclick="downloadLabelImage('jpg')" class="inline-flex items-center space-x-1.5 bg-charcoal hover:bg-neutral-800 text-cream px-3 py-2 rounded-lg text-xs font-mono uppercase tracking-wider font-medium shadow-sm transition-colors">
+            <span>Save JPG</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -639,15 +674,17 @@
         </div>
 
         <!-- Quick Export Buttons -->
-        <div class="flex items-center justify-center space-x-3 pt-2">
-          <button onclick="copyNutritionSummary()" class="text-xs font-mono text-neutral-600 hover:text-indigoAccent flex items-center space-x-1.5 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-            <span>Copy Text Spec</span>
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-3">
+          <button onclick="downloadLabelImage('png')" class="btn-pulse inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigoAccent text-white text-xs font-mono shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Save PNG</span>
           </button>
-          <span class="text-neutral-300">·</span>
-          <button onclick="printOrExportLabel()" class="text-xs font-mono text-indigoAccent hover:underline flex items-center space-x-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            <span>Print Label Sheet</span>
+          <button onclick="downloadLabelImage('jpg')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white border border-neutral-300 hover:border-neutral-400 text-charcoal text-xs font-mono transition-colors">
+            <span>Save JPG</span>
+          </button>
+          <button onclick="copyNutritionSummary()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white border border-neutral-300 hover:text-indigoAccent text-neutral-600 text-xs font-mono transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span>Copy Text</span>
           </button>
         </div>
 
@@ -1307,10 +1344,48 @@
     }
 
     // ==========================================
-    // Print / Export Label Sheet
+    // High-Resolution Image Export (PNG / JPG)
     // ==========================================
+    async function downloadLabelImage(format = 'png') {
+      const labelElement = document.getElementById('fdaLabelPrintArea');
+      if (!labelElement) return;
+
+      const normFormat = format.toLowerCase() === 'jpg' ? 'jpeg' : 'png';
+      showToast(`Rendering high-res ${format.toUpperCase()}...`);
+
+      try {
+        // High DPI capture: scale: 3 gives print/packaging fidelity
+        const canvas = await html2canvas(labelElement, {
+          scale: 3,
+          backgroundColor: '#ffffff',
+          useCORS: true,
+          logging: false
+        });
+
+        const rawName = document.getElementById('productNameInput').value || 'Nutrition_Facts';
+        const cleanName = rawName.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+        const filename = `${cleanName}_FDA_Label.${format.toLowerCase()}`;
+
+        const mimeType = normFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
+        const quality = normFormat === 'jpeg' ? 0.95 : 1.0;
+        const dataUrl = canvas.toDataURL(mimeType, quality);
+
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showToast(`Saved ${filename}`);
+      } catch (err) {
+        console.error("Export error:", err);
+        showToast("Export error. Please check browser permissions.");
+      }
+    }
+
     function printOrExportLabel() {
-      window.print();
+      downloadLabelImage('png');
     }
 
     function copyNutritionSummary() {
@@ -1322,7 +1397,7 @@
       const sodium = document.getElementById('lblSodium').textContent;
       const fiber = document.getElementById('lblFiber').textContent;
 
-      const summary = `Product: ${productName}\nCalories: ${cal} kcal\nProtein: ${prot}\nTotal Fat: ${fat}\nTotal Carbs: ${carbs}\nFiber: ${fiber}\nSodium: ${sodium}\n[Engine: VITA FDA 2016 Regulatory Suite]`;
+      const summary = `Product: ${productName}\nCalories: ${cal} kcal\nProtein: ${prot}\nTotal Fat: ${fat}\nTotal Carbs: ${carbs}\nFiber: ${fiber}\nSodium: ${sodium}\n[Engine: MATRICE Nutritional Specification Engine]`;
       
       navigator.clipboard.writeText(summary).then(() => {
         showToast("Nutrition summary copied to clipboard");
