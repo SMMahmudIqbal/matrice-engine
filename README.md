@@ -25,7 +25,7 @@ Designed with the **Premium Fluidity / Organic Intelligence** design system, com
    - Mandated modern micronutrient reporting: Vitamin D (mcg), Calcium (mg), Iron (mg), and Potassium (mg).
    - Indented lines for Saturated Fat, Trans Fat, Dietary Fiber, and Added Sugars.
 
-2. **21 CFR Regulatory Claim Intelligence Engine:**
+3. **21 CFR Regulatory Claim Intelligence Engine:**
    - **Protein Claims (21 CFR § 101.54):** Evaluates "Excellent source of Protein" (≥ 20% DV) vs. "Good source of Protein" (10–19% DV).
    - **Fiber Claims (21 CFR § 101.54):** Evaluates "High Fiber" (≥ 20% DV) vs. "Good source of Fiber" (10–19% DV).
    - **Sodium Claims (21 CFR § 101.61):** Flags "Sodium Free" (< 5mg), "Very Low Sodium" (≤ 35mg), and "Low Sodium" (≤ 140mg per RACC).
@@ -33,18 +33,19 @@ Designed with the **Premium Fluidity / Organic Intelligence** design system, com
    - **Sugars (21 CFR § 101.60):** Verifies "No Added Sugars" and "Sugar Free".
    - **Disqualifying Nutrient Disclosures (21 CFR § 101.13(h)):** Automatically flags if positive marketing claims trigger mandatory front-of-pack disclosure statements due to high sodium, saturated fat, or cholesterol.
 
-3. **USDA FoodData Verified Ingredients & Real-time Bill of Materials:**
+4. **USDA FoodData Verified Ingredients & Real-time Bill of Materials:**
    - Pre-loaded with staple food ingredients (Rolled Oats, Pea Protein, Whey Isolate, Almond Butter, Chia Seeds, Medjool Dates, Spinach Powder, Blueberries, Olive Oil, etc.).
    - Instant calculation of batch yields, serving counts, and caloric density (kcal/100g).
 
-4. **1-Click Industrial Presets:**
+5. **1-Click Industrial Presets:**
    - *Clean-Label Protein Energy Bar*
    - *Botanical Low-Sodium Bone Broth*
    - *Wild Blueberry & Flax Clusters*
    - *Keto Avocado Green Elixir*
 
-5. **Print & Export Ready:**
-   - Instant print-to-PDF stylesheet formatting for clean packaging proof sheets.
+6. **Export Ready:**
+   - High-resolution PNG / JPG export of the FDA label only (via html2canvas) — saves the label as an image file, not the whole page, for clean packaging proof sheets.
+   - 1-click copy of a plain-text nutrition summary to the clipboard.
 
 ---
 
