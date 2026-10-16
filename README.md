@@ -5,8 +5,6 @@ An interactive, high-precision food engineering and nutrition intelligence suite
 🌐 **Live Deployment:** [https://fda-nutrition-label-generator.vercel.app](https://fda-nutrition-label-generator.vercel.app)  
 📦 **GitHub Repository:** [https://github.com/SMMahmudIqbal/matrice-engine](https://github.com/SMMahmudIqbal/matrice-engine)
 
-![MATRICE demo](demo.gif)
-
 Designed with the **Premium Fluidity / Organic Intelligence** design system, combining editorial elegance (*Playfair Display*), technical precision (*JetBrains Mono*), and legible structure (*Inter*).
 
 ---
