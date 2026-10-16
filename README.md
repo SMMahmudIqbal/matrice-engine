@@ -45,12 +45,20 @@ Designed with the **Premium Fluidity / Organic Intelligence** design system, com
    - **Sugars (21 CFR § 101.60):** Verifies "No Added Sugars" and "Sugar Free".
    - **Disqualifying Nutrient Disclosures (21 CFR § 101.13(h)):** Automatically flags if positive marketing claims trigger mandatory front-of-pack disclosure statements due to high sodium, saturated fat, or cholesterol.
 
-6. **USDA FoodData Verified Ingredients & Real-time Bill of Materials:**
-   - Pre-loaded with staple food ingredients (Rolled Oats, Pea Protein, Whey Isolate, Almond Butter, Chia Seeds, Medjool Dates, Spinach Powder, Blueberries, Olive Oil, etc.).
-   - Instant calculation of batch yields, serving counts, and caloric density (kcal/100g).
+6. **525+ Verified Food Ingredients Database (FCTB / INFS DU / USDA FoodData):**
+   - **Comprehensive Bangladeshi Food Composition Table (FCTB):** Over 400 verified local Bangladeshi ingredients sourced from the Institute of Nutrition and Food Science (INFS, University of Dhaka) and FAO.
+     - *Freshwater & Marine Fishes:* Padma Ilish (fresh, fried, fish roe/caviar), Rui, Katla, Mrigal, Pabda, Chital, Shing, Magur, Deshi Koi, Tengra, Gulsha, Puti, Chanda, Batashi, Baim, Kholisha, Ayre, Boal, Roopchanda, Bagda & Galda Chingri, Shutki (Chepa, Loitta, Chhuri).
+     - *Traditional Shaks & Greens:* Lal Shak, Palong Shak, Pui Shak, Kalmi Shak, Kochu Shak, Dheki Shak, Helencha, Pat Shak, Notey Shak, Shorshe Shak, Methi Shak, Mula Shak, Bathua Shak, Kochur Loti.
+     - *Deshi Vegetables (Shobji):* Lau (Bottle Gourd), Chal Kumra, Potol, Jhinga, Chichinga, Korola, Deshi Uchhe, Dherosh (Okra), Round & Long Begun, Sheem & Sheem Bichi, Kochur Mukhi, Ol Kochu, Maan Kochu.
+     - *Local Heritage Grains & Dals:* Chinigura Polao Rice, Kalijira, Najirshail, Miniket, Balam, Deshi Moshur Dal (Red Lentil), Roasted Moong Dal, Khesari Dal, Chhola (Deshi Chickpea), Mashkalai.
+     - *Dairy, Sweets & Traditional Preparations:* Bogurar Shahi Mishti Doi, Traditional Tok Doi, Chhana, Roshogolla, Sandesh, Porabarir Chamcham, Cumillar Roshmalai, Deshi Cow Ghee (Baghabari / Pabna), Cold-Pressed Kachi Ghani Mustard Oil.
+   - **Modern Global Functional Ingredients:** Whey Protein Isolate 90%, Micellar Casein, Pea Protein Isolate, Hydrolyzed Collagen, Spirulina, Ceremonial Matcha, Dutch Cocoa, Raw Cacao Nibs, MCT Oil Powder, Psyllium Husk, Allulose, Stevia Reb-A.
+   - **Bilingual Fast-Search Modal:** Instant search across English and Bengali (বাংলা) script and transliteration, category filtering pills, and live per-100g nutrient inspector.
 
-7. **1-Click Industrial Presets:**
+7. **1-Click Industrial & Traditional Presets:**
    - *Clean-Label Protein Energy Bar*
+   - *Padma Ilish & Chinigura Khichuri Feast* (Traditional Bangladeshi Staple)
+   - *Bogurar Shahi Mishti Doi* (Authentic Caramelized Sweet Yogurt)
    - *Botanical Low-Sodium Bone Broth*
    - *Wild Blueberry & Flax Clusters*
    - *Keto Avocado Green Elixir*

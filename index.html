@@ -214,6 +214,9 @@
 
   <!-- html2canvas for High-Res PNG / JPG Image Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- MATRICE Verified 500+ Ingredients Database (FCTB / INFS DU / USDA / 21 CFR) -->
+  <script src="ingredients_db.js"></script>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
 
@@ -274,6 +277,12 @@
       <div class="flex flex-wrap gap-2">
         <button onclick="loadPreset('granolaBar')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
           ⚡ Clean Protein Bar
+        </button>
+        <button onclick="loadPreset('ilishKhichuri')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
+          🐟 Padma Ilish Khichuri
+        </button>
+        <button onclick="loadPreset('mistiDoi')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
+          🍯 Bogurar Mishti Doi
         </button>
         <button onclick="loadPreset('savorySoup')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
           🥣 Low-Sodium Broth
@@ -734,37 +743,143 @@
     </div>
   </main>
 
-  <!-- Add Ingredient Modal -->
-  <div id="ingredientModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
-    <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl border border-borderGrey">
-      <div class="flex items-center justify-between pb-3 border-b border-neutral-200">
-        <h3 class="font-serif text-xl font-bold text-charcoal">Add Ingredient from Database</h3>
-        <button onclick="closeAddIngredientModal()" class="text-neutral-400 hover:text-charcoal font-mono text-lg">&times;</button>
+  <!-- Add Ingredient Modal (525+ Verified Items with Bilingual Search & Instant Filtering) -->
+  <div id="ingredientModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-3 md:p-6">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-borderGrey overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-borderGrey bg-cream/70 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-indigoAccent animate-pulse"></div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-serif text-xl font-bold text-charcoal">Ingredient Specification Database</h3>
+              <span id="modalTotalBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigoAccent border border-indigo-200 font-semibold">525+ Items</span>
+            </div>
+            <p class="text-xs text-neutral-500 font-sans mt-0.5">
+              Food Composition Table for Bangladesh (FCTB / INFS DU) & USDA 21 CFR § 101 Reference Standards
+            </p>
+          </div>
+        </div>
+        <button onclick="closeAddIngredientModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-charcoal hover:bg-neutral-100 font-mono text-2xl transition-colors">&times;</button>
       </div>
 
-      <div class="mt-4 space-y-4">
-        <div>
-          <label class="block text-xs font-mono uppercase text-neutral-500 mb-1">Select Food Item</label>
-          <select id="modalIngredientSelect" class="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-sans">
-            <!-- Dynamically populated from INGREDIENT_DATABASE -->
-          </select>
+      <!-- Search & Category Filters -->
+      <div class="p-4 border-b border-borderGrey bg-white space-y-3">
+        <!-- Live Search Bar -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <input id="ingredientSearchInput" type="text" oninput="filterIngredientDatabase()" 
+            placeholder="Search by English or বাংলা name (e.g. Ilish, Palong Shak, Moshur Dal, Ghee, Mishti Doi, Whey, Korola)..."
+            class="w-full pl-10 pr-9 py-2.5 text-sm border border-neutral-300 rounded-xl focus:outline-none focus:border-indigoAccent focus:ring-1 focus:ring-indigoAccent font-sans bg-neutral-50/60 placeholder:text-neutral-400">
+          <button id="clearSearchBtn" onclick="clearIngredientSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-neutral-600 font-mono text-xs">✕</button>
         </div>
 
-        <div>
-          <label class="block text-xs font-mono uppercase text-neutral-500 mb-1">Batch Amount (grams)</label>
-          <input id="modalIngredientWeight" type="number" value="100" min="1" step="1" 
-            class="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-mono">
+        <!-- Category Pills (Horizontal scrollable) -->
+        <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 text-xs font-mono scrollbar-none" id="categoryFilterContainer">
+          <!-- Rendered dynamically -->
         </div>
       </div>
 
-      <div class="mt-6 flex justify-end space-x-3">
-        <button onclick="closeAddIngredientModal()" class="px-4 py-2 text-xs font-mono uppercase rounded-lg border border-neutral-300 hover:bg-neutral-50">
-          Cancel
-        </button>
-        <button onclick="confirmAddIngredient()" class="btn-pulse px-4 py-2 text-xs font-mono uppercase rounded-lg bg-indigoAccent text-white">
-          Add to Recipe
-        </button>
+      <!-- Two-Column Body: Left (Ingredient List), Right (Selected Item Inspector & Quantity) -->
+      <div class="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-borderGrey bg-neutral-50/40">
+        
+        <!-- Left: Scrollable List (Col 7) -->
+        <div class="md:col-span-7 flex flex-col h-72 md:h-[420px]">
+          <div class="px-4 py-2 border-b border-neutral-200/60 flex items-center justify-between text-[11px] font-mono text-neutral-500 uppercase tracking-wider bg-white/70">
+            <span id="filteredCountText">Showing 525 Items</span>
+            <span class="text-[10px] text-neutral-400">Click row to select</span>
+          </div>
+          <div id="ingredientGridList" class="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <!-- Dynamically populated ingredient cards -->
+          </div>
+        </div>
+
+        <!-- Right: Selected Inspector & Formulation Batcher (Col 5) -->
+        <div class="md:col-span-5 p-5 flex flex-col justify-between h-auto md:h-[420px] bg-white overflow-y-auto">
+          <div id="inspectorContent" class="space-y-4">
+            <div>
+              <div class="flex items-center justify-between gap-1 flex-wrap">
+                <span id="inspectorCategory" class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 text-indigoAccent border border-indigo-200 font-semibold">Fish & Seafood</span>
+                <span id="inspectorAllergenBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium hidden">Allergen: Fish</span>
+              </div>
+              <h4 id="inspectorName" class="font-serif text-lg font-bold text-charcoal mt-1.5 leading-snug">Ilish / Hilsa Fish (Raw, Padma)</h4>
+              <div id="inspectorBanglaName" class="text-xs font-sans text-neutral-500 font-medium">ইলিশ মাছ</div>
+            </div>
+
+            <!-- Per 100g Macro Grid -->
+            <div class="p-3 rounded-xl bg-neutral-50 border border-neutral-200/80">
+              <div class="text-[10px] font-mono uppercase text-neutral-400 tracking-wider mb-2 font-semibold">Nutritional Density per 100g</div>
+              <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="p-1.5 rounded bg-white border border-neutral-200">
+                  <div class="text-[9px] font-mono uppercase text-neutral-400">Calories</div>
+                  <div id="inspCal" class="text-xs font-mono font-bold text-charcoal">273</div>
+                  <div class="text-[8px] text-neutral-400 font-mono">kcal</div>
+                </div>
+                <div class="p-1.5 rounded bg-white border border-neutral-200">
+                  <div class="text-[9px] font-mono uppercase text-neutral-400">Protein</div>
+                  <div id="inspProt" class="text-xs font-mono font-bold text-indigoAccent">21.8</div>
+                  <div class="text-[8px] text-neutral-400 font-mono">g</div>
+                </div>
+                <div class="p-1.5 rounded bg-white border border-neutral-200">
+                  <div class="text-[9px] font-mono uppercase text-neutral-400">Fat</div>
+                  <div id="inspFat" class="text-xs font-mono font-bold text-amber-600">19.5</div>
+                  <div class="text-[8px] text-neutral-400 font-mono">g</div>
+                </div>
+                <div class="p-1.5 rounded bg-white border border-neutral-200">
+                  <div class="text-[9px] font-mono uppercase text-neutral-400">Carbs</div>
+                  <div id="inspCarb" class="text-xs font-mono font-bold text-emerald-600">0.0</div>
+                  <div class="text-[8px] text-neutral-400 font-mono">g</div>
+                </div>
+              </div>
+              <!-- Secondary Micronutrient Row -->
+              <div class="mt-2.5 pt-2 border-t border-neutral-200 grid grid-cols-3 text-[10px] font-mono text-neutral-500">
+                <div>Na: <strong id="inspSod" class="text-charcoal">78mg</strong></div>
+                <div>Ca: <strong id="inspCalc" class="text-charcoal">180mg</strong></div>
+                <div>Fe: <strong id="inspIron" class="text-charcoal">2.8mg</strong></div>
+              </div>
+            </div>
+
+            <!-- Batch Amount Input -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-mono uppercase text-neutral-600 font-semibold tracking-wider">Batch Amount</label>
+                <span class="text-[10px] font-mono text-neutral-400">Grams</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button type="button" onclick="adjustModalWeight(-25)" class="w-8 h-8 rounded-lg border border-neutral-300 hover:bg-neutral-100 flex items-center justify-center font-mono font-bold text-neutral-600 text-sm">-</button>
+                <input id="modalIngredientWeight" type="number" value="100" min="1" step="5"
+                  class="flex-1 px-3 py-2 text-center text-sm font-mono font-bold border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent">
+                <button type="button" onclick="adjustModalWeight(25)" class="w-8 h-8 rounded-lg border border-neutral-300 hover:bg-neutral-100 flex items-center justify-center font-mono font-bold text-neutral-600 text-sm">+</button>
+              </div>
+              <!-- Quick Chips -->
+              <div class="flex items-center space-x-1.5 mt-2">
+                <button type="button" onclick="setModalWeight(50)" class="px-2 py-0.5 rounded border border-neutral-200 hover:border-indigoAccent text-[10px] font-mono text-neutral-500 bg-white">50g</button>
+                <button type="button" onclick="setModalWeight(100)" class="px-2 py-0.5 rounded border border-neutral-200 hover:border-indigoAccent text-[10px] font-mono text-neutral-500 bg-white">100g</button>
+                <button type="button" onclick="setModalWeight(200)" class="px-2 py-0.5 rounded border border-neutral-200 hover:border-indigoAccent text-[10px] font-mono text-neutral-500 bg-white">200g</button>
+                <button type="button" onclick="setModalWeight(500)" class="px-2 py-0.5 rounded border border-neutral-200 hover:border-indigoAccent text-[10px] font-mono text-neutral-500 bg-white">500g</button>
+              </div>
+            </div>
+
+            <!-- Hidden input for backwards-compatibility -->
+            <input type="hidden" id="modalIngredientSelect" value="">
+          </div>
+
+          <!-- Bottom Actions -->
+          <div class="pt-4 border-t border-borderGrey flex items-center space-x-2 mt-4">
+            <button onclick="closeAddIngredientModal()" class="flex-1 py-2 text-xs font-mono uppercase rounded-lg border border-neutral-300 hover:bg-neutral-50 text-neutral-600 transition-colors">
+              Cancel
+            </button>
+            <button id="btnConfirmAdd" onclick="confirmAddIngredient()" class="btn-pulse flex-1 py-2 text-xs font-mono uppercase rounded-lg bg-indigoAccent hover:bg-indigo-700 text-white font-medium shadow-sm transition-colors">
+              Add to Recipe
+            </button>
+          </div>
+        </div>
+
       </div>
+
     </div>
   </div>
 
@@ -887,32 +1002,17 @@
     };
 
     // ==========================================
-    // USDA FoodData Verified Ingredient Database
-    // Values per 100 grams
+    // Verified 500+ Ingredient Database Reference
+    // Loaded from ingredients_db.js (FCTB / INFS DU / USDA)
     // ==========================================
-    const INGREDIENT_DATABASE = [
-      { id: 'oats', name: 'Rolled Oats (Whole Grain)', legalName: 'Whole Grain Rolled Oats', subIngredients: '', allergens: [], calories: 389, fat: 6.9, satFat: 1.2, transFat: 0, cholesterol: 0, sodium: 2, carbs: 66.3, fiber: 10.6, sugars: 0, addedSugars: 0, protein: 16.9, vitD: 0, calcium: 54, iron: 4.7, potassium: 429 },
-      { id: 'peaProtein', name: 'Pea Protein Isolate 85%', legalName: 'Pea Protein Isolate', subIngredients: 'Yellow Pea Protein', allergens: [], calories: 400, fat: 7.0, satFat: 1.5, transFat: 0, cholesterol: 0, sodium: 950, carbs: 3.0, fiber: 2.0, sugars: 0, addedSugars: 0, protein: 82.0, vitD: 0, calcium: 180, iron: 25.0, potassium: 380 },
-      { id: 'wheyProtein', name: 'Whey Protein Isolate 90%', legalName: 'Whey Protein Isolate', subIngredients: 'Whey Protein, Sunflower Lecithin', allergens: ['Milk'], calories: 370, fat: 1.0, satFat: 0.5, transFat: 0, cholesterol: 10, sodium: 170, carbs: 2.0, fiber: 0, sugars: 1.0, addedSugars: 0, protein: 90.0, vitD: 0, calcium: 450, iron: 0.8, potassium: 420 },
-      { id: 'almondButter', name: 'Almond Butter (Creamy, Unsalted)', legalName: 'Almond Butter', subIngredients: 'Dry Roasted Almonds', allergens: ['Tree Nuts (Almond)'], calories: 614, fat: 55.5, satFat: 4.5, transFat: 0, cholesterol: 0, sodium: 7, carbs: 18.8, fiber: 10.3, sugars: 4.4, addedSugars: 0, protein: 21.0, vitD: 0, calcium: 347, iron: 3.5, potassium: 748 },
-      { id: 'chiaSeeds', name: 'Chia Seeds (Raw)', legalName: 'Organic Chia Seeds', subIngredients: '', allergens: [], calories: 486, fat: 30.7, satFat: 3.3, transFat: 0, cholesterol: 0, sodium: 16, carbs: 42.1, fiber: 34.4, sugars: 0, addedSugars: 0, protein: 16.5, vitD: 0, calcium: 631, iron: 7.7, potassium: 407 },
-      { id: 'honey', name: 'Pure Clover Honey', legalName: 'Clover Honey', subIngredients: '', allergens: [], calories: 304, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 4, carbs: 82.4, fiber: 0.2, sugars: 82.1, addedSugars: 82.0, protein: 0.3, vitD: 0, calcium: 6, iron: 0.4, potassium: 52 },
-      { id: 'darkChocolate', name: 'Dark Chocolate Chips (70% Cacao)', legalName: 'Dark Chocolate', subIngredients: 'Cacao Mass, Cane Sugar, Cocoa Butter, Vanilla Extract', allergens: ['Milk (Trace)'], calories: 598, fat: 42.6, satFat: 24.5, transFat: 0, cholesterol: 3, sodium: 20, carbs: 45.9, fiber: 10.9, sugars: 24.0, addedSugars: 24.0, protein: 7.8, vitD: 0, calcium: 73, iron: 11.9, potassium: 715 },
-      { id: 'dates', name: 'Medjool Dates (Pitted)', legalName: 'Medjool Dates', subIngredients: '', allergens: [], calories: 277, fat: 0.2, satFat: 0, transFat: 0, cholesterol: 0, sodium: 1, carbs: 75.0, fiber: 6.7, sugars: 66.5, addedSugars: 0, protein: 1.8, vitD: 0, calcium: 64, iron: 0.9, potassium: 696 },
-      { id: 'spinachPowder', name: 'Organic Spinach Powder', legalName: 'Organic Spinach Powder', subIngredients: '', allergens: [], calories: 285, fat: 3.5, satFat: 0.6, transFat: 0, cholesterol: 0, sodium: 550, carbs: 37.0, fiber: 22.0, sugars: 3.0, addedSugars: 0, protein: 28.0, vitD: 0, calcium: 1050, iron: 28.0, potassium: 3200 },
-      { id: 'blueberries', name: 'Freeze-Dried Wild Blueberries', legalName: 'Freeze-Dried Wild Blueberries', subIngredients: '', allergens: [], calories: 360, fat: 2.5, satFat: 0.2, transFat: 0, cholesterol: 0, sodium: 10, carbs: 85.0, fiber: 14.0, sugars: 60.0, addedSugars: 0, protein: 3.5, vitD: 0, calcium: 55, iron: 1.5, potassium: 540 },
-      { id: 'oliveOil', name: 'Extra Virgin Olive Oil', legalName: 'Extra Virgin Olive Oil', subIngredients: '', allergens: [], calories: 884, fat: 100.0, satFat: 13.8, transFat: 0, cholesterol: 0, sodium: 2, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 1, iron: 0.6, potassium: 1 },
-      { id: 'seaSalt', name: 'Fine Mediterranean Sea Salt', legalName: 'Sea Salt', subIngredients: '', allergens: [], calories: 0, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 38758, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 24, iron: 0.1, potassium: 8 },
-      { id: 'chickenBoneBroth', name: 'Concentrated Bone Broth Liquid', legalName: 'Chicken Bone Broth', subIngredients: 'Water, Organic Chicken Bones, Organic Carrots, Sea Salt', allergens: [], calories: 45, fat: 0.5, satFat: 0.1, transFat: 0, cholesterol: 5, sodium: 85, carbs: 0.5, fiber: 0, sugars: 0, addedSugars: 0, protein: 10.0, vitD: 0, calcium: 30, iron: 0.5, potassium: 180 },
-      { id: 'avocado', name: 'Fresh Hass Avocado Flesh', legalName: 'Hass Avocado', subIngredients: '', allergens: [], calories: 160, fat: 14.7, satFat: 2.1, transFat: 0, cholesterol: 0, sodium: 7, carbs: 8.5, fiber: 6.7, sugars: 0.7, addedSugars: 0, protein: 2.0, vitD: 0, calcium: 12, iron: 0.6, potassium: 485 },
-      { id: 'flaxseed', name: 'Ground Golden Flaxseed Meal', legalName: 'Golden Flaxseed Meal', subIngredients: '', allergens: [], calories: 534, fat: 42.2, satFat: 3.7, transFat: 0, cholesterol: 0, sodium: 30, carbs: 28.9, fiber: 27.3, sugars: 1.6, addedSugars: 0, protein: 18.3, vitD: 0, calcium: 255, iron: 5.7, potassium: 813 }
-    ];
+    const DB_SOURCE = (typeof INGREDIENT_DATABASE !== 'undefined' ? INGREDIENT_DATABASE : (typeof window !== 'undefined' && window.INGREDIENT_DATABASE ? window.INGREDIENT_DATABASE : []));
+    var INGREDIENT_DATABASE = DB_SOURCE;
 
     // Current Active Recipe Items: [{ ingredientId, weightGrams }]
     let currentRecipe = [];
 
     // ==========================================
-    // Pre-set Recipe Definitions
+    // Pre-set Recipe Definitions (Global & Local Bangladeshi Staples)
     // ==========================================
     const PRESETS = {
       granolaBar: {
@@ -927,6 +1027,28 @@
           { ingredientId: 'chiaSeeds', weightGrams: 40 },
           { ingredientId: 'darkChocolate', weightGrams: 50 },
           { ingredientId: 'seaSalt', weightGrams: 2 }
+        ]
+      },
+      ilishKhichuri: {
+        name: "Padma Ilish & Chinigura Khichuri Feast",
+        servingSize: 320,
+        servingsPerContainer: 2,
+        items: [
+          { ingredientId: 'rice_chinigura', weightGrams: 200 },
+          { ingredientId: 'dal_moong_bhaja', weightGrams: 100 },
+          { ingredientId: 'ilish_fresh', weightGrams: 220 },
+          { ingredientId: 'oil_mustard_ghani', weightGrams: 25 },
+          { ingredientId: 'ghee_deshi', weightGrams: 15 },
+          { ingredientId: 'seaSalt', weightGrams: 4 }
+        ]
+      },
+      mistiDoi: {
+        name: "Bogurar Shahi Mishti Doi (Caramelized Yogurt)",
+        servingSize: 120,
+        servingsPerContainer: 4,
+        items: [
+          { ingredientId: 'mishti_doi', weightGrams: 420 },
+          { ingredientId: 'chhana_fresh', weightGrams: 60 }
         ]
       },
       savorySoup: {
@@ -965,6 +1087,10 @@
       }
     };
 
+    // Modal Search & Filter State
+    let activeCategory = 'All';
+    let selectedModalIngredientId = null;
+
     // ==========================================
     // Initialize Studio
     // ==========================================
@@ -974,14 +1100,8 @@
         document.querySelectorAll('.reveal-init').forEach(el => el.classList.add('reveal-active'));
       }, 80);
 
-      // Populate ingredient modal select options
-      const select = document.getElementById('modalIngredientSelect');
-      INGREDIENT_DATABASE.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item.id;
-        opt.textContent = `${item.name} (${item.calories} kcal/100g)`;
-        select.appendChild(opt);
-      });
+      // Initialize Database Modal
+      initIngredientModal();
 
       // Load default preset
       loadPreset('granolaBar');
@@ -1016,7 +1136,8 @@
         tr.className = 'hover:bg-neutral-50/80 transition-colors';
         tr.innerHTML = `
           <td class="py-2.5 font-medium text-charcoal">
-            ${ing.name}
+            <div class="font-medium text-charcoal">${ing.name}</div>
+            ${ing.banglaName ? `<div class="text-[11px] font-sans text-neutral-400 font-normal">${ing.banglaName}</div>` : ''}
           </td>
           <td class="py-2.5 text-right font-mono">
             <input type="number" min="1" value="${entry.weightGrams}" onchange="updateIngredientWeight(${index}, this.value)"
@@ -1046,10 +1167,209 @@
     }
 
     // ==========================================
-    // Ingredient Modal Handlers
+    // Upgraded 525+ Ingredient Modal Handlers
     // ==========================================
+    function initIngredientModal() {
+      if (!INGREDIENT_DATABASE || INGREDIENT_DATABASE.length === 0) return;
+
+      // Update total badge
+      const totalBadge = document.getElementById('modalTotalBadge');
+      if (totalBadge) totalBadge.textContent = `${INGREDIENT_DATABASE.length} Verified Items`;
+
+      // Collect Categories and item counts
+      const counts = { 'All': INGREDIENT_DATABASE.length };
+      INGREDIENT_DATABASE.forEach(item => {
+        const cat = item.category || 'Other';
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+
+      const categories = [
+        'All',
+        'Fish & Seafood',
+        'Shak & Vegetables',
+        'Grains & Pulses',
+        'Meat & Poultry',
+        'Dairy & Sweets',
+        'Fruits',
+        'Spices & Seeds',
+        'Nuts & Seeds',
+        'Functional & Global'
+      ];
+
+      const catContainer = document.getElementById('categoryFilterContainer');
+      if (catContainer) {
+        catContainer.innerHTML = '';
+        categories.forEach(cat => {
+          if (!counts[cat] && cat !== 'All') return;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const isActive = (cat === activeCategory);
+          btn.className = `px-3 py-1 rounded-full text-xs font-mono transition-all whitespace-nowrap ${
+            isActive 
+              ? 'bg-indigoAccent text-white shadow-xs font-medium' 
+              : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600'
+          }`;
+          btn.textContent = `${cat} (${counts[cat] || 0})`;
+          btn.onclick = () => {
+            activeCategory = cat;
+            initIngredientModal();
+            filterIngredientDatabase();
+          };
+          catContainer.appendChild(btn);
+        });
+      }
+
+      if (!selectedModalIngredientId && INGREDIENT_DATABASE.length > 0) {
+        selectedModalIngredientId = INGREDIENT_DATABASE[0].id;
+      }
+
+      filterIngredientDatabase();
+    }
+
+    function filterIngredientDatabase() {
+      const searchInput = document.getElementById('ingredientSearchInput');
+      const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', query.length === 0);
+      }
+
+      const gridList = document.getElementById('ingredientGridList');
+      if (!gridList) return;
+
+      const filtered = INGREDIENT_DATABASE.filter(item => {
+        const matchCat = (activeCategory === 'All' || item.category === activeCategory);
+        if (!matchCat) return false;
+        if (!query) return true;
+        
+        const nameMatch = (item.name && item.name.toLowerCase().includes(query));
+        const banglaMatch = (item.banglaName && item.banglaName.toLowerCase().includes(query));
+        const legalMatch = (item.legalName && item.legalName.toLowerCase().includes(query));
+        return nameMatch || banglaMatch || legalMatch;
+      });
+
+      const countText = document.getElementById('filteredCountText');
+      if (countText) {
+        countText.textContent = `Showing ${filtered.length} of ${INGREDIENT_DATABASE.length} Items`;
+      }
+
+      gridList.innerHTML = '';
+
+      if (filtered.length === 0) {
+        gridList.innerHTML = `
+          <div class="py-12 text-center text-xs font-mono text-neutral-400">
+            No ingredients found matching "${query}". Search across English or বাংলা names.
+          </div>
+        `;
+        return;
+      }
+
+      // If currently selected item is not in filtered list, select the first filtered item
+      if (!filtered.some(x => x.id === selectedModalIngredientId)) {
+        selectedModalIngredientId = filtered[0].id;
+      }
+
+      filtered.forEach(item => {
+        const isSelected = item.id === selectedModalIngredientId;
+        const card = document.createElement('div');
+        card.className = `p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-2 ${
+          isSelected 
+            ? 'border-indigoAccent bg-indigo-50/70 shadow-xs ring-1 ring-indigoAccent' 
+            : 'border-neutral-200/80 bg-white hover:border-neutral-300 hover:bg-neutral-50/70'
+        }`;
+        card.onclick = () => selectModalIngredient(item.id);
+
+        card.innerHTML = `
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="font-sans text-xs font-semibold text-charcoal truncate">${item.name}</span>
+              ${item.banglaName ? `<span class="text-[11px] font-sans text-neutral-500 truncate">· ${item.banglaName}</span>` : ''}
+            </div>
+            <div class="flex items-center space-x-2 text-[10px] font-mono text-neutral-400 mt-0.5">
+              <span class="text-indigoAccent font-medium">${item.category}</span>
+              <span>·</span>
+              <span>${item.calories} kcal</span>
+              <span>·</span>
+              <span>${item.protein}g P</span>
+              <span>·</span>
+              <span>${item.fat}g F</span>
+              ${item.allergens && item.allergens.length > 0 ? `<span class="text-amber-600 bg-amber-50 px-1 rounded">⚠️ ${item.allergens[0]}</span>` : ''}
+            </div>
+          </div>
+          <div class="w-5 h-5 rounded-full flex items-center justify-center font-mono text-[11px] flex-shrink-0 ${isSelected ? 'bg-indigoAccent text-white' : 'border border-neutral-300 text-neutral-300'}">
+            ${isSelected ? '✓' : ''}
+          </div>
+        `;
+        gridList.appendChild(card);
+      });
+
+      updateModalInspector(selectedModalIngredientId);
+    }
+
+    function selectModalIngredient(id) {
+      selectedModalIngredientId = id;
+      filterIngredientDatabase();
+    }
+
+    function updateModalInspector(id) {
+      const ing = INGREDIENT_DATABASE.find(x => x.id === id);
+      if (!ing) return;
+
+      const hiddenSelect = document.getElementById('modalIngredientSelect');
+      if (hiddenSelect) hiddenSelect.value = ing.id;
+
+      document.getElementById('inspectorName').textContent = ing.name;
+      document.getElementById('inspectorBanglaName').textContent = ing.banglaName || ing.legalName || '';
+      document.getElementById('inspectorCategory').textContent = ing.category || 'General';
+
+      const allergenBadge = document.getElementById('inspectorAllergenBadge');
+      if (allergenBadge) {
+        if (ing.allergens && ing.allergens.length > 0) {
+          allergenBadge.textContent = `Allergen: ${ing.allergens.join(', ')}`;
+          allergenBadge.classList.remove('hidden');
+        } else {
+          allergenBadge.classList.add('hidden');
+        }
+      }
+
+      document.getElementById('inspCal').textContent = ing.calories;
+      document.getElementById('inspProt').textContent = ing.protein;
+      document.getElementById('inspFat').textContent = ing.fat;
+      document.getElementById('inspCarb').textContent = ing.carbs;
+      document.getElementById('inspSod').textContent = `${ing.sodium}mg`;
+      document.getElementById('inspCalc').textContent = `${ing.calcium}mg`;
+      document.getElementById('inspIron').textContent = `${ing.iron}mg`;
+    }
+
+    function clearIngredientSearch() {
+      const searchInput = document.getElementById('ingredientSearchInput');
+      if (searchInput) {
+        searchInput.value = '';
+        filterIngredientDatabase();
+        searchInput.focus();
+      }
+    }
+
+    function adjustModalWeight(delta) {
+      const input = document.getElementById('modalIngredientWeight');
+      if (!input) return;
+      let val = (parseFloat(input.value) || 100) + delta;
+      if (val < 5) val = 5;
+      input.value = val;
+    }
+
+    function setModalWeight(val) {
+      const input = document.getElementById('modalIngredientWeight');
+      if (input) input.value = val;
+    }
+
     function openAddIngredientModal() {
       document.getElementById('ingredientModal').classList.remove('hidden');
+      initIngredientModal();
+      setTimeout(() => {
+        const input = document.getElementById('ingredientSearchInput');
+        if (input) input.focus();
+      }, 50);
     }
 
     function closeAddIngredientModal() {
@@ -1057,13 +1377,13 @@
     }
 
     function confirmAddIngredient() {
-      const select = document.getElementById('modalIngredientSelect');
       const weightInput = document.getElementById('modalIngredientWeight');
-      const ingId = select.value;
+      const ingId = selectedModalIngredientId || (document.getElementById('modalIngredientSelect') ? document.getElementById('modalIngredientSelect').value : null);
       const weight = parseFloat(weightInput.value);
 
       if (!ingId || isNaN(weight) || weight <= 0) return;
 
+      const ing = INGREDIENT_DATABASE.find(x => x.id === ingId);
       const existing = currentRecipe.find(x => x.ingredientId === ingId);
       if (existing) {
         existing.weightGrams += weight;
@@ -1074,6 +1394,8 @@
       closeAddIngredientModal();
       renderRecipeTable();
       recalculateAll();
+
+      showToast(`Added ${ing ? ing.name : 'Ingredient'} (${weight}g)`);
     }
 
     // ==========================================
