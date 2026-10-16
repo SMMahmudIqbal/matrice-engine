@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="S. M. Mahmud Iqbal">
+  <title>MATRICE · Nutritional Specification Engine & FDA Claim Studio</title>
+
+  <!-- Google Fonts: Playfair Display, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#fcfbf9',
+            charcoal: '#171717',
+            indigoAccent: '#4338ca',
+            borderGrey: '#e5e5e5',
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Inter"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          transitionTimingFunction: {
+            premium: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      background-color: #fcfbf9;
+      color: #171717;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      selection-background-color: #4338ca;
+      selection-color: #ffffff;
+    }
+
+    /* Ambient Animated Mesh Gradient */
+    .mesh-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -10;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .mesh-orb-1 {
+      position: absolute;
+      top: -15%;
+      right: -10%;
+      width: 70vw;
+      height: 70vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(199, 210, 254, 0.35) 0%, rgba(238, 242, 255, 0) 70%);
+      filter: blur(60px);
+      animation: driftMesh 32s infinite linear alternate;
+    }
+
+    .mesh-orb-2 {
+      position: absolute;
+      bottom: -10%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(233, 213, 255, 0.28) 0%, rgba(250, 245, 255, 0) 70%);
+      filter: blur(70px);
+      animation: driftMeshReverse 28s infinite linear alternate;
+    }
+
+    @keyframes driftMesh {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50% { transform: translate(-8vw, 6vh) scale(1.08) rotate(180deg); }
+      100% { transform: translate(5vw, -4vh) scale(0.95) rotate(360deg); }
+    }
+
+    @keyframes driftMeshReverse {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50% { transform: translate(6vw, -8vh) scale(1.1) rotate(-180deg); }
+      100% { transform: translate(-4vw, 5vh) scale(0.92) rotate(-360deg); }
+    }
+
+    /* Premium Ease Animations */
+    .reveal-init {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 1000ms var(--ease-premium), transform 1000ms var(--ease-premium);
+    }
+
+    .reveal-active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Button Pulse Spec */
+    .btn-pulse {
+      transition: all 400ms var(--ease-premium);
+    }
+    .btn-pulse:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px -3px rgba(67, 56, 202, 0.35);
+    }
+
+    /* Card Elevation Spec */
+    .premium-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid #e5e5e5;
+      transition: transform 500ms var(--ease-premium), box-shadow 500ms var(--ease-premium), border-color 500ms var(--ease-premium);
+    }
+    .premium-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 20px 35px -10px rgba(67, 56, 202, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+      border-color: rgba(67, 56, 202, 0.25);
+    }
+
+    /* Functional Monospace Typography */
+    .mono-label {
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      font-size: 11px;
+    }
+
+    /* Authentic FDA 2016 Nutrition Facts Label Standard */
+    .fda-panel {
+      font-family: 'Franklin Gothic Medium', 'Arial Black', Arial, Helvetica, sans-serif;
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #000000;
+      padding: 12px 14px;
+      line-height: 1.15;
+    }
+
+    .fda-thick-bar {
+      height: 10px;
+      background-color: #000000;
+      margin: 4px 0;
+    }
+
+    .fda-med-bar {
+      height: 5px;
+      background-color: #000000;
+      margin: 4px 0;
+    }
+
+    .fda-hairline {
+      height: 1px;
+      background-color: #71717a;
+      margin: 3px 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fcfbf9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d4d4d8;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4338ca;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
+
+  <!-- Ambient Dynamic Mesh Background -->
+  <div class="mesh-background">
+    <div class="mesh-orb-1"></div>
+    <div class="mesh-orb-2"></div>
+  </div>
+
+  <!-- Header / Navigation with mix-blend-difference -->
+  <header class="w-full sticky top-0 z-50 backdrop-blur-md bg-[#fcfbf9]/80 border-b border-borderGrey/70">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-indigoAccent inline-block animate-pulse"></span>
+        <span class="font-serif text-2xl font-bold tracking-tight text-charcoal">MATRICE</span>
+        <span class="text-xs font-mono uppercase tracking-widest text-neutral-400 pl-2 border-l border-neutral-300">Nutritional Specification Engine</span>
+      </div>
+
+      <div class="flex items-center space-x-6">
+        <div class="hidden md:flex items-center space-x-2 text-xs font-mono text-neutral-500 uppercase tracking-widest">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>FDA 2016 Compliant Engine</span>
+        </div>
+        <button onclick="printOrExportLabel()" class="btn-pulse inline-flex items-center space-x-2 bg-charcoal hover:bg-neutral-800 text-cream px-4 py-2 rounded-lg text-xs font-mono uppercase tracking-widest font-medium shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span>Print / Export Label</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-6 pt-10 pb-20 w-full flex-grow">
+
+    <!-- Hero Title Block -->
+    <div class="reveal-init mb-12">
+      <div class="mono-label text-indigoAccent mb-2 font-semibold">Regulatory Intelligence · Food Engineering</div>
+      <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl font-normal tracking-tight text-charcoal leading-[1.05]">
+        Nutrition Facts <span class="italic font-light">&</span> <br>
+        <span class="italic text-indigoAccent">Legal Claims</span> Studio.
+      </h1>
+      <p class="mt-4 text-neutral-600 text-base md:text-lg max-w-2xl font-sans leading-relaxed">
+        Formulate food recipes, dynamically calculate 2016 FDA Daily Values (% DV), and audit statutory marketing claims under 
+        <code class="font-mono text-xs bg-neutral-100 text-indigoAccent px-1.5 py-0.5 rounded border border-neutral-200">21 CFR § 101 Subpart D</code>.
+      </p>
+    </div>
+
+    <!-- Quick Presets Carousel/Selector -->
+    <div class="reveal-init mb-8 p-4 rounded-xl bg-white/70 border border-borderGrey shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <span class="mono-label text-neutral-500">Quick Presets:</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="loadPreset('granolaBar')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
+          ⚡ Clean Protein Bar
+        </button>
+        <button onclick="loadPreset('savorySoup')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
+          🥣 Low-Sodium Broth
+        </button>
+        <button onclick="loadPreset('berryGranola')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
+          🫐 High-Fiber Granola
+        </button>
+        <button onclick="loadPreset('ketoSmoothie')" class="text-xs font-mono px-3 py-1.5 rounded-md border border-neutral-300 hover:border-indigoAccent hover:text-indigoAccent bg-white transition-colors duration-200">
+          🥑 Keto Avocado Blend
+        </button>
+      </div>
+    </div>
+
+    <!-- 00 / LIVE OVERVIEW & FORMULATION INTELLIGENCE RADAR -->
+    <div class="reveal-init mb-8 premium-card p-6 rounded-2xl border border-borderGrey shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-borderGrey gap-3">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-indigoAccent animate-ping"></span>
+            <span class="mono-label text-indigoAccent">00 / Live Overview</span>
+          </div>
+          <h2 class="font-serif text-2xl font-bold text-charcoal">Real-Time Formulation Analytics & Biomarkers</h2>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span id="liveStatusBadge" class="text-xs font-mono px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+            ● Active Formulation Sync
+          </span>
+        </div>
+      </div>
+
+      <!-- Macro Caloric Distribution Meter (Atwater System) -->
+      <div class="mt-6">
+        <div class="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
+          <span>Atwater Energy Distribution (% of Calories)</span>
+          <span id="liveAtwaterSummary" class="text-charcoal font-semibold">25% Protein · 35% Fat · 40% Carbs</span>
+        </div>
+        <!-- Segmented Multi-Color Progress Bar -->
+        <div class="h-3 w-full rounded-full bg-neutral-100 overflow-hidden flex shadow-inner">
+          <div id="barProtein" class="h-full bg-indigoAccent transition-all duration-500 ease-out" style="width: 25%" title="Protein Energy"></div>
+          <div id="barFat" class="h-full bg-amber-500 transition-all duration-500 ease-out" style="width: 35%" title="Fat Energy"></div>
+          <div id="barCarb" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 40%" title="Carbohydrate Energy"></div>
+        </div>
+        <div class="flex justify-between items-center text-[11px] font-mono mt-2 text-neutral-500">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm bg-indigoAccent inline-block"></span>
+            <span>Protein: <strong id="valProteinCals" class="text-charcoal">0 kcal</strong> (<span id="valProteinPct">0%</span>)</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>
+            <span>Fat: <strong id="valFatCals" class="text-charcoal">0 kcal</strong> (<span id="valFatPct">0%</span>)</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
+            <span>Carbs: <strong id="valCarbCals" class="text-charcoal">0 kcal</strong> (<span id="valCarbPct">0%</span>)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Live Biomarker KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        
+        <!-- KPI 1: Protein-to-Calorie Density -->
+        <div class="p-4 rounded-xl bg-white border border-neutral-200/80 shadow-xs">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-1">Protein Satiety Density</div>
+          <div class="flex items-baseline space-x-1.5">
+            <span id="kpiProteinDensity" class="font-serif text-2xl font-bold text-charcoal">0.0g</span>
+            <span class="text-xs font-mono text-neutral-500">/ 100 kcal</span>
+          </div>
+          <div class="mt-2 text-[11px] font-mono">
+            <span id="kpiProteinBadge" class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigoAccent border border-indigo-200">Balanced</span>
+          </div>
+        </div>
+
+        <!-- KPI 2: Net Carbohydrates -->
+        <div class="p-4 rounded-xl bg-white border border-neutral-200/80 shadow-xs">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-1">Net Carbohydrates</div>
+          <div class="flex items-baseline space-x-1.5">
+            <span id="kpiNetCarbs" class="font-serif text-2xl font-bold text-charcoal">0g</span>
+            <span class="text-xs font-mono text-neutral-500">/ serving</span>
+          </div>
+          <div class="mt-2 text-[11px] font-mono text-neutral-500">
+            Total <span id="kpiTotalCarbsRef">0g</span> - Fiber <span id="kpiFiberRef">0g</span>
+          </div>
+        </div>
+
+        <!-- KPI 3: Added Sugar Share -->
+        <div class="p-4 rounded-xl bg-white border border-neutral-200/80 shadow-xs">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-1">Added Sugar Caloric Share</div>
+          <div class="flex items-baseline space-x-1.5">
+            <span id="kpiSugarShare" class="font-serif text-2xl font-bold text-charcoal">0%</span>
+            <span class="text-xs font-mono text-neutral-500">of calories</span>
+          </div>
+          <div class="mt-2 text-[11px] font-mono">
+            <span id="kpiSugarBadge" class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">&lt;10% WHO Target</span>
+          </div>
+        </div>
+
+        <!-- KPI 4: Allergen Advisory (FASTER Act) -->
+        <div class="p-4 rounded-xl bg-white border border-neutral-200/80 shadow-xs">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-1">FDA Major 9 Allergens</div>
+          <div id="kpiAllergenStatus" class="font-sans text-xs font-semibold text-charcoal mt-1 line-clamp-1">
+            None Detected
+          </div>
+          <div class="mt-2 text-[11px] font-mono">
+            <span id="kpiAllergenBadge" class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">Allergen Clean</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Ingredient Macro Contribution Drivers -->
+      <div class="mt-6 pt-5 border-t border-dashed border-neutral-300">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div class="text-xs font-mono uppercase tracking-wider text-neutral-600 font-semibold">
+            Primary Nutritional Drivers (Top Contributors)
+          </div>
+          <!-- Toggle filter tabs -->
+          <div class="flex space-x-1.5 text-xs font-mono">
+            <button onclick="setDriverTab('calories')" id="tabDriverCalories" class="px-2.5 py-1 rounded-md bg-charcoal text-white font-medium">Calories</button>
+            <button onclick="setDriverTab('protein')" id="tabDriverProtein" class="px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-600 hover:bg-neutral-200">Protein</button>
+            <button onclick="setDriverTab('sodium')" id="tabDriverSodium" class="px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-600 hover:bg-neutral-200">Sodium</button>
+            <button onclick="setDriverTab('sugars')" id="tabDriverSugars" class="px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-600 hover:bg-neutral-200">Sugars</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Contribution Progress Bars -->
+        <div id="driverBarsContainer" class="space-y-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Grid: Recipe Builder (Left) + FDA Label & Regulatory Auditor (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT: Recipe Formulation Studio (7 Columns) -->
+      <section class="lg:col-span-7 space-y-6">
+
+        <!-- Recipe Configuration Card -->
+        <div class="premium-card p-6 rounded-2xl reveal-init">
+          <div class="flex items-center justify-between pb-4 border-b border-borderGrey mb-5">
+            <div>
+              <span class="mono-label text-indigoAccent">01 / Formulation</span>
+              <h2 class="font-serif text-2xl font-bold text-charcoal">Batch & Serving Parameters</h2>
+            </div>
+            <span class="text-xs font-mono bg-indigo-50 text-indigoAccent px-2.5 py-1 rounded-full border border-indigo-200 font-medium">
+              FDA RACC Sync
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">Product Name</label>
+              <input id="productNameInput" type="text" value="Artisanal Protein Energy Bar" 
+                class="w-full px-3 py-2 text-sm bg-neutral-50/50 border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-sans text-charcoal font-medium">
+            </div>
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">Serving Size (g)</label>
+              <input id="servingSizeInput" type="number" value="60" min="1" step="1" oninput="recalculateAll()"
+                class="w-full px-3 py-2 text-sm bg-neutral-50/50 border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-mono text-charcoal font-medium">
+            </div>
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">Servings Per Container</label>
+              <input id="servingsPerContainerInput" type="number" value="1" min="1" step="0.5" oninput="recalculateAll()"
+                class="w-full px-3 py-2 text-sm bg-neutral-50/50 border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-mono text-charcoal font-medium">
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingredient Deck Card -->
+        <div class="premium-card p-6 rounded-2xl reveal-init">
+          <div class="flex items-center justify-between pb-4 border-b border-borderGrey mb-5">
+            <div>
+              <span class="mono-label text-indigoAccent">02 / Bill of Materials</span>
+              <h2 class="font-serif text-2xl font-bold text-charcoal">Ingredient Recipe Deck</h2>
+            </div>
+            <button onclick="openAddIngredientModal()" class="btn-pulse inline-flex items-center space-x-1.5 bg-indigoAccent text-white px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>Add Ingredient</span>
+            </button>
+          </div>
+
+          <!-- Recipe Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm font-sans">
+              <thead>
+                <tr class="border-b border-neutral-200 text-neutral-400 font-mono text-xs uppercase tracking-wider">
+                  <th class="py-2.5 font-normal">Ingredient</th>
+                  <th class="py-2.5 font-normal w-28 text-right">Grams (g)</th>
+                  <th class="py-2.5 font-normal w-24 text-right">Calories</th>
+                  <th class="py-2.5 font-normal w-24 text-right">Protein</th>
+                  <th class="py-2.5 font-normal w-12 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ingredientTableBody" class="divide-y divide-neutral-100">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Batch Totals Bar -->
+          <div class="mt-6 pt-4 border-t border-dashed border-neutral-300 flex flex-wrap items-center justify-between text-xs font-mono text-neutral-600 gap-2">
+            <div>Total Batch Weight: <span id="totalBatchWeight" class="font-bold text-charcoal font-sans text-sm">0g</span></div>
+            <div>Calculated Yield: <span id="calculatedServingsYield" class="font-bold text-indigoAccent font-sans text-sm">0 servings</span></div>
+            <div>Caloric Density: <span id="caloricDensity" class="font-bold text-charcoal font-sans text-sm">0 kcal/100g</span></div>
+          </div>
+        </div>
+
+        <!-- 21 CFR Regulatory Claim Intelligence Auditor -->
+        <div class="premium-card p-6 rounded-2xl reveal-init">
+          <div class="flex items-center justify-between pb-4 border-b border-borderGrey mb-5">
+            <div>
+              <span class="mono-label text-indigoAccent">03 / Statutory Compliance</span>
+              <h2 class="font-serif text-2xl font-bold text-charcoal">21 CFR Regulatory Claims Auditor</h2>
+            </div>
+            <span class="text-xs font-mono text-neutral-400">Subpart D Analysis</span>
+          </div>
+
+          <p class="text-xs text-neutral-500 font-sans mb-4">
+            Auditing marketing claims based on FDA 21 CFR § 101 statutory Daily Values (DV) and Reference Amounts Customarily Consumed (RACC).
+          </p>
+
+          <!-- Claims Badges Grid -->
+          <div id="claimsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Dynamic Badges -->
+          </div>
+
+          <!-- Disqualifying Nutrients Alert (21 CFR 101.13(h)) -->
+          <div id="disqualificationAlert" class="mt-4 p-3.5 rounded-xl border border-amber-300 bg-amber-50/70 text-amber-900 text-xs hidden">
+            <div class="flex items-start space-x-2">
+              <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div>
+                <span class="font-bold font-mono">21 CFR 101.13(h) Disclosure Required:</span>
+                <span id="disqualificationReason"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT: Authentic FDA 2016 Label Preview (5 Columns) -->
+      <section class="lg:col-span-5 sticky top-24 space-y-4 reveal-init">
+        
+        <div class="flex items-center justify-between px-1">
+          <span class="mono-label text-neutral-500">Official Preview</span>
+          <span class="text-xs font-mono text-indigoAccent font-medium">FDA 2016 Mandate</span>
+        </div>
+
+        <!-- Outer Label Shell -->
+        <div id="fdaLabelPrintArea" class="fda-panel rounded-lg shadow-xl max-w-sm mx-auto w-full transition-transform duration-300 hover:shadow-2xl">
+          
+          <!-- Top Title -->
+          <div class="text-[34px] font-black tracking-tight leading-none">Nutrition Facts</div>
+          
+          <div class="text-[12px] font-medium mt-1">
+            <span id="lblServingsPerContainer">1</span> servings per container
+          </div>
+          
+          <div class="flex justify-between items-baseline font-bold text-[14px] leading-tight pb-1">
+            <span>Serving size</span>
+            <span id="lblServingSize">60g</span>
+          </div>
+
+          <div class="fda-thick-bar"></div>
+
+          <!-- Calories Header -->
+          <div class="flex justify-between items-baseline pt-1">
+            <div class="font-bold text-[11px] leading-tight">
+              Amount per serving<br>
+              <span class="text-[30px] font-black">Calories</span>
+            </div>
+            <div id="lblCalories" class="text-[42px] font-black tracking-tighter leading-none">
+              240
+            </div>
+          </div>
+
+          <div class="fda-med-bar"></div>
+
+          <!-- % Daily Value Note -->
+          <div class="text-right font-bold text-[11px] pb-1">
+            % Daily Value*
+          </div>
+
+          <!-- Total Fat -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5">
+            <div>
+              <span class="font-bold">Total Fat</span> <span id="lblTotalFat">8g</span>
+            </div>
+            <div class="font-bold" id="lblTotalFatDV">10%</div>
+          </div>
+
+          <!-- Saturated Fat -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5 pl-4">
+            <div>
+              Saturated Fat <span id="lblSatFat">1.5g</span>
+            </div>
+            <div class="font-bold" id="lblSatFatDV">8%</div>
+          </div>
+
+          <!-- Trans Fat -->
+          <div class="fda-hairline"></div>
+          <div class="text-[13px] py-0.5 pl-4">
+            <em>Trans</em> Fat <span id="lblTransFat">0g</span>
+          </div>
+
+          <!-- Cholesterol -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5">
+            <div>
+              <span class="font-bold">Cholesterol</span> <span id="lblCholesterol">0mg</span>
+            </div>
+            <div class="font-bold" id="lblCholesterolDV">0%</div>
+          </div>
+
+          <!-- Sodium -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5">
+            <div>
+              <span class="font-bold">Sodium</span> <span id="lblSodium">120mg</span>
+            </div>
+            <div class="font-bold" id="lblSodiumDV">5%</div>
+          </div>
+
+          <!-- Total Carbohydrate -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5">
+            <div>
+              <span class="font-bold">Total Carbohydrate</span> <span id="lblCarbs">28g</span>
+            </div>
+            <div class="font-bold" id="lblCarbsDV">10%</div>
+          </div>
+
+          <!-- Dietary Fiber -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5 pl-4">
+            <div>
+              Dietary Fiber <span id="lblFiber">6g</span>
+            </div>
+            <div class="font-bold" id="lblFiberDV">21%</div>
+          </div>
+
+          <!-- Total Sugars -->
+          <div class="fda-hairline"></div>
+          <div class="text-[13px] py-0.5 pl-4">
+            Total Sugars <span id="lblTotalSugars">9g</span>
+          </div>
+
+          <!-- Added Sugars -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5 pl-8">
+            <div>
+              Includes <span id="lblAddedSugars">4g</span> Added Sugars
+            </div>
+            <div class="font-bold" id="lblAddedSugarsDV">8%</div>
+          </div>
+
+          <!-- Protein -->
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[13px] py-0.5">
+            <div>
+              <span class="font-bold">Protein</span> <span id="lblProtein">15g</span>
+            </div>
+            <div class="font-bold" id="lblProteinDV">30%</div>
+          </div>
+
+          <div class="fda-thick-bar"></div>
+
+          <!-- Mandatory Micronutrients (2016 Modernized) -->
+          <div class="flex justify-between text-[12px] py-0.5">
+            <div>Vitamin D <span id="lblVitD">0mcg</span></div>
+            <div id="lblVitDDV">0%</div>
+          </div>
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[12px] py-0.5">
+            <div>Calcium <span id="lblCalcium">85mg</span></div>
+            <div id="lblCalciumDV">6%</div>
+          </div>
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[12px] py-0.5">
+            <div>Iron <span id="lblIron">3.2mg</span></div>
+            <div id="lblIronDV">18%</div>
+          </div>
+          <div class="fda-hairline"></div>
+          <div class="flex justify-between text-[12px] py-0.5">
+            <div>Potassium <span id="lblPotassium">260mg</span></div>
+            <div id="lblPotassiumDV">6%</div>
+          </div>
+
+          <div class="fda-med-bar"></div>
+
+          <!-- Footnote Standard -->
+          <div class="text-[9.5px] leading-tight text-neutral-800 pt-1">
+            * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
+          </div>
+        </div>
+
+        <!-- Quick Export Buttons -->
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button onclick="copyNutritionSummary()" class="text-xs font-mono text-neutral-600 hover:text-indigoAccent flex items-center space-x-1.5 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span>Copy Text Spec</span>
+          </button>
+          <span class="text-neutral-300">·</span>
+          <button onclick="printOrExportLabel()" class="text-xs font-mono text-indigoAccent hover:underline flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Print Label Sheet</span>
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Add Ingredient Modal -->
+  <div id="ingredientModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl border border-borderGrey">
+      <div class="flex items-center justify-between pb-3 border-b border-neutral-200">
+        <h3 class="font-serif text-xl font-bold text-charcoal">Add Ingredient from Database</h3>
+        <button onclick="closeAddIngredientModal()" class="text-neutral-400 hover:text-charcoal font-mono text-lg">&times;</button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-mono uppercase text-neutral-500 mb-1">Select Food Item</label>
+          <select id="modalIngredientSelect" class="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-sans">
+            <!-- Dynamically populated from INGREDIENT_DATABASE -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono uppercase text-neutral-500 mb-1">Batch Amount (grams)</label>
+          <input id="modalIngredientWeight" type="number" value="100" min="1" step="1" 
+            class="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:border-indigoAccent font-mono">
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end space-x-3">
+        <button onclick="closeAddIngredientModal()" class="px-4 py-2 text-xs font-mono uppercase rounded-lg border border-neutral-300 hover:bg-neutral-50">
+          Cancel
+        </button>
+        <button onclick="confirmAddIngredient()" class="btn-pulse px-4 py-2 text-xs font-mono uppercase rounded-lg bg-indigoAccent text-white">
+          Add to Recipe
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="fixed bottom-14 right-6 z-50 bg-charcoal text-cream text-xs font-mono px-4 py-2.5 rounded-lg shadow-xl border border-neutral-700 transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none">
+    Copied to clipboard
+  </div>
+
+  <!-- Discrete Footer with Mandatory Author Attribution -->
+  <footer class="w-full py-6 mt-16 border-t border-borderGrey/80 bg-white/50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-neutral-500">
+      <div class="flex items-center space-x-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+        <span>MATRICE · Nutritional Specification Engine · 21 CFR § 101.9 & § 101.54 Compliance</span>
+      </div>
+      <div class="text-neutral-400 text-[11px]">
+        Developed by S. M. Mahmud Iqbal
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic & USDA/21 CFR Knowledge Base -->
+  <script>
+    // ==========================================
+    // FDA 2016 Statutory Daily Values (DV) Reference
+    // ==========================================
+    const FDA_DAILY_VALUES = {
+      fat: 78,          // g
+      satFat: 20,       // g
+      cholesterol: 300, // mg
+      sodium: 2300,     // mg
+      carbs: 275,       // g
+      fiber: 28,        // g
+      addedSugars: 50,  // g
+      protein: 50,      // g
+      vitaminD: 20,     // mcg
+      calcium: 1300,    // mg
+      iron: 18,         // mg
+      potassium: 4700   // mg
+    };
+
+    // ==========================================
+    // USDA FoodData Verified Ingredient Database
+    // Values per 100 grams
+    // ==========================================
+    const INGREDIENT_DATABASE = [
+      { id: 'oats', name: 'Rolled Oats (Whole Grain)', allergens: [], calories: 389, fat: 6.9, satFat: 1.2, transFat: 0, cholesterol: 0, sodium: 2, carbs: 66.3, fiber: 10.6, sugars: 0, addedSugars: 0, protein: 16.9, vitD: 0, calcium: 54, iron: 4.7, potassium: 429 },
+      { id: 'peaProtein', name: 'Pea Protein Isolate 85%', allergens: [], calories: 400, fat: 7.0, satFat: 1.5, transFat: 0, cholesterol: 0, sodium: 950, carbs: 3.0, fiber: 2.0, sugars: 0, addedSugars: 0, protein: 82.0, vitD: 0, calcium: 180, iron: 25.0, potassium: 380 },
+      { id: 'wheyProtein', name: 'Whey Protein Isolate 90%', allergens: ['Milk'], calories: 370, fat: 1.0, satFat: 0.5, transFat: 0, cholesterol: 10, sodium: 170, carbs: 2.0, fiber: 0, sugars: 1.0, addedSugars: 0, protein: 90.0, vitD: 0, calcium: 450, iron: 0.8, potassium: 420 },
+      { id: 'almondButter', name: 'Almond Butter (Creamy, Unsalted)', allergens: ['Tree Nuts (Almond)'], calories: 614, fat: 55.5, satFat: 4.5, transFat: 0, cholesterol: 0, sodium: 7, carbs: 18.8, fiber: 10.3, sugars: 4.4, addedSugars: 0, protein: 21.0, vitD: 0, calcium: 347, iron: 3.5, potassium: 748 },
+      { id: 'chiaSeeds', name: 'Chia Seeds (Raw)', allergens: [], calories: 486, fat: 30.7, satFat: 3.3, transFat: 0, cholesterol: 0, sodium: 16, carbs: 42.1, fiber: 34.4, sugars: 0, addedSugars: 0, protein: 16.5, vitD: 0, calcium: 631, iron: 7.7, potassium: 407 },
+      { id: 'honey', name: 'Pure Clover Honey', allergens: [], calories: 304, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 4, carbs: 82.4, fiber: 0.2, sugars: 82.1, addedSugars: 82.0, protein: 0.3, vitD: 0, calcium: 6, iron: 0.4, potassium: 52 },
+      { id: 'darkChocolate', name: 'Dark Chocolate Chips (70% Cacao)', allergens: ['Milk (Trace)'], calories: 598, fat: 42.6, satFat: 24.5, transFat: 0, cholesterol: 3, sodium: 20, carbs: 45.9, fiber: 10.9, sugars: 24.0, addedSugars: 24.0, protein: 7.8, vitD: 0, calcium: 73, iron: 11.9, potassium: 715 },
+      { id: 'dates', name: 'Medjool Dates (Pitted)', allergens: [], calories: 277, fat: 0.2, satFat: 0, transFat: 0, cholesterol: 0, sodium: 1, carbs: 75.0, fiber: 6.7, sugars: 66.5, addedSugars: 0, protein: 1.8, vitD: 0, calcium: 64, iron: 0.9, potassium: 696 },
+      { id: 'spinachPowder', name: 'Organic Spinach Powder', allergens: [], calories: 285, fat: 3.5, satFat: 0.6, transFat: 0, cholesterol: 0, sodium: 550, carbs: 37.0, fiber: 22.0, sugars: 3.0, addedSugars: 0, protein: 28.0, vitD: 0, calcium: 1050, iron: 28.0, potassium: 3200 },
+      { id: 'blueberries', name: 'Freeze-Dried Wild Blueberries', allergens: [], calories: 360, fat: 2.5, satFat: 0.2, transFat: 0, cholesterol: 0, sodium: 10, carbs: 85.0, fiber: 14.0, sugars: 60.0, addedSugars: 0, protein: 3.5, vitD: 0, calcium: 55, iron: 1.5, potassium: 540 },
+      { id: 'oliveOil', name: 'Extra Virgin Olive Oil', allergens: [], calories: 884, fat: 100.0, satFat: 13.8, transFat: 0, cholesterol: 0, sodium: 2, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 1, iron: 0.6, potassium: 1 },
+      { id: 'seaSalt', name: 'Fine Mediterranean Sea Salt', allergens: [], calories: 0, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 38758, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 24, iron: 0.1, potassium: 8 },
+      { id: 'chickenBoneBroth', name: 'Concentrated Bone Broth Liquid', allergens: [], calories: 45, fat: 0.5, satFat: 0.1, transFat: 0, cholesterol: 5, sodium: 85, carbs: 0.5, fiber: 0, sugars: 0, addedSugars: 0, protein: 10.0, vitD: 0, calcium: 30, iron: 0.5, potassium: 180 },
+      { id: 'avocado', name: 'Fresh Hass Avocado Flesh', allergens: [], calories: 160, fat: 14.7, satFat: 2.1, transFat: 0, cholesterol: 0, sodium: 7, carbs: 8.5, fiber: 6.7, sugars: 0.7, addedSugars: 0, protein: 2.0, vitD: 0, calcium: 12, iron: 0.6, potassium: 485 },
+      { id: 'flaxseed', name: 'Ground Golden Flaxseed Meal', allergens: [], calories: 534, fat: 42.2, satFat: 3.7, transFat: 0, cholesterol: 0, sodium: 30, carbs: 28.9, fiber: 27.3, sugars: 1.6, addedSugars: 0, protein: 18.3, vitD: 0, calcium: 255, iron: 5.7, potassium: 813 }
+    ];
+
+    // Current Active Recipe Items: [{ ingredientId, weightGrams }]
+    let currentRecipe = [];
+
+    // ==========================================
+    // Pre-set Recipe Definitions
+    // ==========================================
+    const PRESETS = {
+      granolaBar: {
+        name: "Artisanal Protein Energy Bar",
+        servingSize: 60,
+        servingsPerContainer: 1,
+        items: [
+          { ingredientId: 'oats', weightGrams: 200 },
+          { ingredientId: 'peaProtein', weightGrams: 140 },
+          { ingredientId: 'almondButter', weightGrams: 160 },
+          { ingredientId: 'honey', weightGrams: 80 },
+          { ingredientId: 'chiaSeeds', weightGrams: 40 },
+          { ingredientId: 'darkChocolate', weightGrams: 50 },
+          { ingredientId: 'seaSalt', weightGrams: 2 }
+        ]
+      },
+      savorySoup: {
+        name: "Botanical Low-Sodium Bone Broth",
+        servingSize: 240,
+        servingsPerContainer: 4,
+        items: [
+          { ingredientId: 'chickenBoneBroth', weightGrams: 900 },
+          { ingredientId: 'spinachPowder', weightGrams: 30 },
+          { ingredientId: 'oliveOil', weightGrams: 15 },
+          { ingredientId: 'seaSalt', weightGrams: 1.5 }
+        ]
+      },
+      berryGranola: {
+        name: "Wild Blueberry & Flax Clusters",
+        servingSize: 55,
+        servingsPerContainer: 8,
+        items: [
+          { ingredientId: 'oats', weightGrams: 280 },
+          { ingredientId: 'blueberries', weightGrams: 60 },
+          { ingredientId: 'flaxseed', weightGrams: 50 },
+          { ingredientId: 'honey', weightGrams: 40 },
+          { ingredientId: 'oliveOil', weightGrams: 20 }
+        ]
+      },
+      ketoSmoothie: {
+        name: "Keto Creamy Avocado Green Elixir",
+        servingSize: 300,
+        servingsPerContainer: 1,
+        items: [
+          { ingredientId: 'avocado', weightGrams: 120 },
+          { ingredientId: 'spinachPowder', weightGrams: 15 },
+          { ingredientId: 'wheyProtein', weightGrams: 35 },
+          { ingredientId: 'chiaSeeds', weightGrams: 20 }
+        ]
+      }
+    };
+
+    // ==========================================
+    // Initialize Studio
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // Reveal animations
+      setTimeout(() => {
+        document.querySelectorAll('.reveal-init').forEach(el => el.classList.add('reveal-active'));
+      }, 80);
+
+      // Populate ingredient modal select options
+      const select = document.getElementById('modalIngredientSelect');
+      INGREDIENT_DATABASE.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = `${item.name} (${item.calories} kcal/100g)`;
+        select.appendChild(opt);
+      });
+
+      // Load default preset
+      loadPreset('granolaBar');
+    });
+
+    function loadPreset(key) {
+      const preset = PRESETS[key];
+      if (!preset) return;
+      document.getElementById('productNameInput').value = preset.name;
+      document.getElementById('servingSizeInput').value = preset.servingSize;
+      document.getElementById('servingsPerContainerInput').value = preset.servingsPerContainer;
+      currentRecipe = JSON.parse(JSON.stringify(preset.items));
+      renderRecipeTable();
+      recalculateAll();
+    }
+
+    // ==========================================
+    // Recipe Deck Table Rendering
+    // ==========================================
+    function renderRecipeTable() {
+      const tbody = document.getElementById('ingredientTableBody');
+      tbody.innerHTML = '';
+
+      currentRecipe.forEach((entry, index) => {
+        const ing = INGREDIENT_DATABASE.find(x => x.id === entry.ingredientId);
+        if (!ing) return;
+
+        const cal = ((ing.calories * entry.weightGrams) / 100).toFixed(0);
+        const prot = ((ing.protein * entry.weightGrams) / 100).toFixed(1);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-neutral-50/80 transition-colors';
+        tr.innerHTML = `
+          <td class="py-2.5 font-medium text-charcoal">
+            ${ing.name}
+          </td>
+          <td class="py-2.5 text-right font-mono">
+            <input type="number" min="1" value="${entry.weightGrams}" onchange="updateIngredientWeight(${index}, this.value)"
+              class="w-20 px-2 py-1 text-right bg-white border border-neutral-200 rounded text-xs font-mono focus:border-indigoAccent focus:outline-none">
+          </td>
+          <td class="py-2.5 text-right font-mono text-neutral-600 text-xs">${cal} kcal</td>
+          <td class="py-2.5 text-right font-mono text-neutral-600 text-xs">${prot}g</td>
+          <td class="py-2.5 text-center">
+            <button onclick="removeIngredient(${index})" class="text-neutral-400 hover:text-red-500 font-mono transition-colors">&times;</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateIngredientWeight(index, val) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num <= 0) return;
+      currentRecipe[index].weightGrams = num;
+      recalculateAll();
+    }
+
+    function removeIngredient(index) {
+      currentRecipe.splice(index, 1);
+      renderRecipeTable();
+      recalculateAll();
+    }
+
+    // ==========================================
+    // Ingredient Modal Handlers
+    // ==========================================
+    function openAddIngredientModal() {
+      document.getElementById('ingredientModal').classList.remove('hidden');
+    }
+
+    function closeAddIngredientModal() {
+      document.getElementById('ingredientModal').classList.add('hidden');
+    }
+
+    function confirmAddIngredient() {
+      const select = document.getElementById('modalIngredientSelect');
+      const weightInput = document.getElementById('modalIngredientWeight');
+      const ingId = select.value;
+      const weight = parseFloat(weightInput.value);
+
+      if (!ingId || isNaN(weight) || weight <= 0) return;
+
+      const existing = currentRecipe.find(x => x.ingredientId === ingId);
+      if (existing) {
+        existing.weightGrams += weight;
+      } else {
+        currentRecipe.push({ ingredientId: ingId, weightGrams: weight });
+      }
+
+      closeAddIngredientModal();
+      renderRecipeTable();
+      recalculateAll();
+    }
+
+    // ==========================================
+    // Aggregator & Core Nutrition Calculations
+    // ==========================================
+    function recalculateAll() {
+      const servingSize = parseFloat(document.getElementById('servingSizeInput').value) || 60;
+      const servingsPerContainer = parseFloat(document.getElementById('servingsPerContainerInput').value) || 1;
+
+      // 1. Calculate Total Batch Weights and Nutrients
+      let totalBatchWeight = 0;
+      let batchNutrients = {
+        calories: 0, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 0,
+        carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0,
+        vitD: 0, calcium: 0, iron: 0, potassium: 0
+      };
+
+      currentRecipe.forEach(item => {
+        const ing = INGREDIENT_DATABASE.find(x => x.id === item.ingredientId);
+        if (!ing) return;
+        const w = item.weightGrams;
+        totalBatchWeight += w;
+
+        batchNutrients.calories += (ing.calories * w) / 100;
+        batchNutrients.fat += (ing.fat * w) / 100;
+        batchNutrients.satFat += (ing.satFat * w) / 100;
+        batchNutrients.transFat += (ing.transFat * w) / 100;
+        batchNutrients.cholesterol += (ing.cholesterol * w) / 100;
+        batchNutrients.sodium += (ing.sodium * w) / 100;
+        batchNutrients.carbs += (ing.carbs * w) / 100;
+        batchNutrients.fiber += (ing.fiber * w) / 100;
+        batchNutrients.sugars += (ing.sugars * w) / 100;
+        batchNutrients.addedSugars += (ing.addedSugars * w) / 100;
+        batchNutrients.protein += (ing.protein * w) / 100;
+        batchNutrients.vitD += (ing.vitD * w) / 100;
+        batchNutrients.calcium += (ing.calcium * w) / 100;
+        batchNutrients.iron += (ing.iron * w) / 100;
+        batchNutrients.potassium += (ing.potassium * w) / 100;
+      });
+
+      // Update Header Batch Indicators
+      document.getElementById('totalBatchWeight').textContent = `${totalBatchWeight.toFixed(0)}g`;
+      const yieldServings = totalBatchWeight > 0 ? (totalBatchWeight / servingSize).toFixed(1) : '0';
+      document.getElementById('calculatedServingsYield').textContent = `${yieldServings} servings`;
+      const density = totalBatchWeight > 0 ? ((batchNutrients.calories / totalBatchWeight) * 100).toFixed(0) : '0';
+      document.getElementById('caloricDensity').textContent = `${density} kcal/100g`;
+
+      // 2. Normalize to per-serving
+      const factor = totalBatchWeight > 0 ? (servingSize / totalBatchWeight) : 0;
+      const perServing = {
+        calories: Math.round(batchNutrients.calories * factor),
+        fat: roundNutrient(batchNutrients.fat * factor, 0.5),
+        satFat: roundNutrient(batchNutrients.satFat * factor, 0.5),
+        transFat: roundNutrient(batchNutrients.transFat * factor, 0.5),
+        cholesterol: Math.round(batchNutrients.cholesterol * factor),
+        sodium: Math.round(batchNutrients.sodium * factor),
+        carbs: roundNutrient(batchNutrients.carbs * factor, 1),
+        fiber: roundNutrient(batchNutrients.fiber * factor, 1),
+        sugars: roundNutrient(batchNutrients.sugars * factor, 1),
+        addedSugars: roundNutrient(batchNutrients.addedSugars * factor, 1),
+        protein: roundNutrient(batchNutrients.protein * factor, 1),
+        vitD: roundNutrient(batchNutrients.vitD * factor, 0.1),
+        calcium: Math.round(batchNutrients.calcium * factor),
+        iron: roundNutrient(batchNutrients.iron * factor, 0.1),
+        potassium: Math.round(batchNutrients.potassium * factor)
+      };
+
+      // 3. Update FDA 2016 Label UI Elements
+      document.getElementById('lblServingsPerContainer').textContent = servingsPerContainer;
+      document.getElementById('lblServingSize').textContent = `${servingSize}g`;
+      document.getElementById('lblCalories').textContent = perServing.calories;
+      document.getElementById('lblTotalFat').textContent = `${perServing.fat}g`;
+      document.getElementById('lblSatFat').textContent = `${perServing.satFat}g`;
+      document.getElementById('lblTransFat').textContent = `${perServing.transFat}g`;
+      document.getElementById('lblCholesterol').textContent = `${perServing.cholesterol}mg`;
+      document.getElementById('lblSodium').textContent = `${perServing.sodium}mg`;
+      document.getElementById('lblCarbs').textContent = `${perServing.carbs}g`;
+      document.getElementById('lblFiber').textContent = `${perServing.fiber}g`;
+      document.getElementById('lblTotalSugars').textContent = `${perServing.sugars}g`;
+      document.getElementById('lblAddedSugars').textContent = `${perServing.addedSugars}g`;
+      document.getElementById('lblProtein').textContent = `${perServing.protein}g`;
+
+      document.getElementById('lblVitD').textContent = `${perServing.vitD}mcg`;
+      document.getElementById('lblCalcium').textContent = `${perServing.calcium}mg`;
+      document.getElementById('lblIron').textContent = `${perServing.iron}mg`;
+      document.getElementById('lblPotassium').textContent = `${perServing.potassium}mg`;
+
+      // 4. Compute % Daily Values
+      document.getElementById('lblTotalFatDV').textContent = `${Math.round((perServing.fat / FDA_DAILY_VALUES.fat) * 100)}%`;
+      document.getElementById('lblSatFatDV').textContent = `${Math.round((perServing.satFat / FDA_DAILY_VALUES.satFat) * 100)}%`;
+      document.getElementById('lblCholesterolDV').textContent = `${Math.round((perServing.cholesterol / FDA_DAILY_VALUES.cholesterol) * 100)}%`;
+      document.getElementById('lblSodiumDV').textContent = `${Math.round((perServing.sodium / FDA_DAILY_VALUES.sodium) * 100)}%`;
+      document.getElementById('lblCarbsDV').textContent = `${Math.round((perServing.carbs / FDA_DAILY_VALUES.carbs) * 100)}%`;
+      document.getElementById('lblFiberDV').textContent = `${Math.round((perServing.fiber / FDA_DAILY_VALUES.fiber) * 100)}%`;
+      document.getElementById('lblAddedSugarsDV').textContent = `${Math.round((perServing.addedSugars / FDA_DAILY_VALUES.addedSugars) * 100)}%`;
+      document.getElementById('lblProteinDV').textContent = `${Math.round((perServing.protein / FDA_DAILY_VALUES.protein) * 100)}%`;
+
+      document.getElementById('lblVitDDV').textContent = `${Math.round((perServing.vitD / FDA_DAILY_VALUES.vitaminD) * 100)}%`;
+      document.getElementById('lblCalciumDV').textContent = `${Math.round((perServing.calcium / FDA_DAILY_VALUES.calcium) * 100)}%`;
+      document.getElementById('lblIronDV').textContent = `${Math.round((perServing.iron / FDA_DAILY_VALUES.iron) * 100)}%`;
+      document.getElementById('lblPotassiumDV').textContent = `${Math.round((perServing.potassium / FDA_DAILY_VALUES.potassium) * 100)}%`;
+
+      // 5. Run 21 CFR Regulatory Claim Intelligence Auditor
+      auditRegulatoryClaims(perServing, servingSize);
+
+      // 6. Update Live Overview Cockpit & Biomarkers
+      updateLiveOverview(batchNutrients, perServing, totalBatchWeight, servingSize);
+    }
+
+    // ==========================================
+    // Live Overview & Formulation Intelligence Logic
+    // ==========================================
+    let currentDriverTab = 'calories';
+
+    function setDriverTab(tab) {
+      currentDriverTab = tab;
+      ['calories', 'protein', 'sodium', 'sugars'].forEach(t => {
+        const btn = document.getElementById(`tabDriver${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (!btn) return;
+        if (t === tab) {
+          btn.className = "px-2.5 py-1 rounded-md bg-charcoal text-white font-medium";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-600 hover:bg-neutral-200";
+        }
+      });
+      renderDriverBars();
+    }
+
+    function updateLiveOverview(batchNutrients, perServing, totalBatchWeight, servingSize) {
+      // 1. Atwater Energy Distribution (Protein: 4 kcal/g, Fat: 9 kcal/g, Carbs: 4 kcal/g)
+      const proteinCals = Math.round(perServing.protein * 4);
+      const fatCals = Math.round(perServing.fat * 9);
+      const carbCals = Math.round(perServing.carbs * 4);
+      const totalMacroCals = (proteinCals + fatCals + carbCals) || 1;
+
+      const proteinPct = Math.round((proteinCals / totalMacroCals) * 100);
+      const fatPct = Math.round((fatCals / totalMacroCals) * 100);
+      const carbPct = Math.max(0, 100 - proteinPct - fatPct);
+
+      // Update Segmented Progress Bars
+      document.getElementById('barProtein').style.width = `${proteinPct}%`;
+      document.getElementById('barFat').style.width = `${fatPct}%`;
+      document.getElementById('barCarb').style.width = `${carbPct}%`;
+
+      // Update Text Readouts
+      document.getElementById('liveAtwaterSummary').textContent = `${proteinPct}% Protein · ${fatPct}% Fat · ${carbPct}% Carbs`;
+      document.getElementById('valProteinCals').textContent = `${proteinCals} kcal`;
+      document.getElementById('valProteinPct').textContent = `${proteinPct}%`;
+      document.getElementById('valFatCals').textContent = `${fatCals} kcal`;
+      document.getElementById('valFatPct').textContent = `${fatPct}%`;
+      document.getElementById('valCarbCals').textContent = `${carbCals} kcal`;
+      document.getElementById('valCarbPct').textContent = `${carbPct}%`;
+
+      // 2. KPI 1: Protein-to-Calorie Satiety Density (g protein / 100 kcal)
+      const proteinDensity = perServing.calories > 0 ? ((perServing.protein / perServing.calories) * 100).toFixed(1) : '0.0';
+      document.getElementById('kpiProteinDensity').textContent = `${proteinDensity}g`;
+      const kpiProtBadge = document.getElementById('kpiProteinBadge');
+      if (parseFloat(proteinDensity) >= 10.0) {
+        kpiProtBadge.textContent = "High Performance (>10g/100kcal)";
+        kpiProtBadge.className = "px-2 py-0.5 rounded-md bg-indigo-100 text-indigoAccent border border-indigo-300 font-semibold";
+      } else if (parseFloat(proteinDensity) >= 5.0) {
+        kpiProtBadge.textContent = "Balanced Protein";
+        kpiProtBadge.className = "px-2 py-0.5 rounded-md bg-indigo-50 text-indigoAccent border border-indigo-200";
+      } else {
+        kpiProtBadge.textContent = "Low Protein (<5g/100kcal)";
+        kpiProtBadge.className = "px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 border border-neutral-200";
+      }
+
+      // 3. KPI 2: Net Carbohydrates
+      const netCarbs = Math.max(0, Math.round(perServing.carbs - perServing.fiber));
+      document.getElementById('kpiNetCarbs').textContent = `${netCarbs}g`;
+      document.getElementById('kpiTotalCarbsRef').textContent = `${perServing.carbs}g`;
+      document.getElementById('kpiFiberRef').textContent = `${perServing.fiber}g`;
+
+      // 4. KPI 3: Added Sugar Caloric Share
+      const addedSugarCals = perServing.addedSugars * 4;
+      const sugarShare = perServing.calories > 0 ? Math.round((addedSugarCals / perServing.calories) * 100) : 0;
+      document.getElementById('kpiSugarShare').textContent = `${sugarShare}%`;
+      const kpiSugarBadge = document.getElementById('kpiSugarBadge');
+      if (sugarShare === 0) {
+        kpiSugarBadge.textContent = "0% Added Sugar (Clean)";
+        kpiSugarBadge.className = "px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold";
+      } else if (sugarShare <= 10) {
+        kpiSugarBadge.textContent = "<10% WHO Guideline";
+        kpiSugarBadge.className = "px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200";
+      } else {
+        kpiSugarBadge.textContent = "High Added Sugar (>10%)";
+        kpiSugarBadge.className = "px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-semibold";
+      }
+
+      // 5. KPI 4: Allergen Advisory (FASTER Act)
+      const detectedAllergens = new Set();
+      currentRecipe.forEach(item => {
+        const ing = INGREDIENT_DATABASE.find(x => x.id === item.ingredientId);
+        if (ing && ing.allergens && ing.allergens.length > 0) {
+          ing.allergens.forEach(a => detectedAllergens.add(a));
+        }
+      });
+
+      const allergenStatus = document.getElementById('kpiAllergenStatus');
+      const allergenBadge = document.getElementById('kpiAllergenBadge');
+      if (detectedAllergens.size > 0) {
+        const list = Array.from(detectedAllergens).join(', ');
+        allergenStatus.textContent = list;
+        allergenStatus.className = "font-sans text-xs font-semibold text-amber-900 mt-1 line-clamp-1";
+        allergenBadge.textContent = "⚠️ Allergen Declared";
+        allergenBadge.className = "px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-300 font-semibold";
+      } else {
+        allergenStatus.textContent = "0 Major Allergens";
+        allergenStatus.className = "font-sans text-xs font-semibold text-emerald-800 mt-1 line-clamp-1";
+        allergenBadge.textContent = "✨ Allergen Clean";
+        allergenBadge.className = "px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
+      }
+
+      // 6. Update Driver Bars
+      renderDriverBars();
+    }
+
+    function renderDriverBars() {
+      const container = document.getElementById('driverBarsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (currentRecipe.length === 0) {
+        container.innerHTML = '<div class="text-xs font-mono text-neutral-400 py-2">No ingredients in current batch.</div>';
+        return;
+      }
+
+      // Calculate contributions for the selected tab
+      const contributions = currentRecipe.map(item => {
+        const ing = INGREDIENT_DATABASE.find(x => x.id === item.ingredientId);
+        if (!ing) return { name: '', amount: 0 };
+        let val = 0;
+        if (currentDriverTab === 'calories') val = (ing.calories * item.weightGrams) / 100;
+        else if (currentDriverTab === 'protein') val = (ing.protein * item.weightGrams) / 100;
+        else if (currentDriverTab === 'sodium') val = (ing.sodium * item.weightGrams) / 100;
+        else if (currentDriverTab === 'sugars') val = ((ing.addedSugars !== undefined ? ing.addedSugars : ing.sugars) * item.weightGrams) / 100;
+        return { name: ing.name, amount: val, grams: item.weightGrams };
+      });
+
+      const total = contributions.reduce((sum, c) => sum + c.amount, 0);
+      contributions.sort((a, b) => b.amount - a.amount);
+
+      // Take top 4
+      const top4 = contributions.slice(0, 4);
+
+      top4.forEach(item => {
+        const pct = total > 0 ? Math.round((item.amount / total) * 100) : 0;
+        let unit = ' kcal';
+        if (currentDriverTab === 'protein' || currentDriverTab === 'sugars') unit = 'g';
+        if (currentDriverTab === 'sodium') unit = ' mg';
+
+        const row = document.createElement('div');
+        row.className = "flex items-center space-x-3 text-xs";
+        row.innerHTML = `
+          <div class="w-48 truncate font-medium text-neutral-700" title="${item.name}">${item.name}</div>
+          <div class="flex-grow bg-neutral-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-indigoAccent h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+          </div>
+          <div class="w-28 text-right font-mono text-[11px] text-neutral-500">
+            <span class="font-bold text-charcoal">${item.amount.toFixed(currentDriverTab === 'calories' ? 0 : 1)}${unit}</span>
+            <span class="text-neutral-400">(${pct}%)</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function roundNutrient(val, step) {
+      if (val < 0.5 && step <= 0.5) return 0;
+      return +(Math.round(val / step) * step).toFixed(step < 1 ? 1 : 0);
+    }
+
+    // ==========================================
+    // 21 CFR Regulatory Claim Intelligence Engine
+    // ==========================================
+    function auditRegulatoryClaims(nutrients, servingSize) {
+      const container = document.getElementById('claimsContainer');
+      container.innerHTML = '';
+
+      const claims = [];
+
+      // 21 CFR § 101.54 Nutrient Content Claims: Protein
+      const proteinDV = (nutrients.protein / FDA_DAILY_VALUES.protein) * 100;
+      if (proteinDV >= 20) {
+        claims.push({ title: "Excellent Source of Protein", rule: "21 CFR § 101.54(b)", status: "approved", desc: `Contains ${nutrients.protein}g (${proteinDV.toFixed(0)}% DV), exceeding the ≥20% requirement.` });
+      } else if (proteinDV >= 10) {
+        claims.push({ title: "Good Source of Protein", rule: "21 CFR § 101.54(c)", status: "approved", desc: `Contains ${nutrients.protein}g (${proteinDV.toFixed(0)}% DV), qualifying for 10-19% DV.` });
+      } else {
+        claims.push({ title: "Protein Claim", rule: "21 CFR § 101.54", status: "ineligible", desc: `Contains ${nutrients.protein}g (${proteinDV.toFixed(0)}% DV). Needs ≥5g (10% DV) for claim.` });
+      }
+
+      // 21 CFR § 101.54 Dietary Fiber
+      const fiberDV = (nutrients.fiber / FDA_DAILY_VALUES.fiber) * 100;
+      if (fiberDV >= 20) {
+        claims.push({ title: "High in Dietary Fiber", rule: "21 CFR § 101.54(b)", status: "approved", desc: `Contains ${nutrients.fiber}g (${fiberDV.toFixed(0)}% DV), meets ≥20% threshold.` });
+      } else if (fiberDV >= 10) {
+        claims.push({ title: "Good Source of Fiber", rule: "21 CFR § 101.54(c)", status: "approved", desc: `Contains ${nutrients.fiber}g (${fiberDV.toFixed(0)}% DV), meets 10-19% threshold.` });
+      }
+
+      // 21 CFR § 101.61 Sodium Content Claims
+      if (nutrients.sodium <= 5) {
+        claims.push({ title: "Sodium Free", rule: "21 CFR § 101.61(b)(1)", status: "approved", desc: `Contains ≤5mg sodium per serving.` });
+      } else if (nutrients.sodium <= 35) {
+        claims.push({ title: "Very Low Sodium", rule: "21 CFR § 101.61(b)(2)", status: "approved", desc: `Contains ≤35mg sodium per serving.` });
+      } else if (nutrients.sodium <= 140) {
+        claims.push({ title: "Low Sodium", rule: "21 CFR § 101.61(b)(4)", status: "approved", desc: `Contains ${nutrients.sodium}mg (≤140mg per RACC threshold).` });
+      }
+
+      // 21 CFR § 101.62 Fat & Saturated Fat
+      if (nutrients.fat <= 0.5) {
+        claims.push({ title: "Fat Free", rule: "21 CFR § 101.62(b)(1)", status: "approved", desc: `<0.5g total fat per serving.` });
+      } else if (nutrients.fat <= 3.0) {
+        claims.push({ title: "Low Fat", rule: "21 CFR § 101.62(b)(2)", status: "approved", desc: `≤3g total fat per RACC/serving.` });
+      }
+
+      if (nutrients.satFat <= 1.0 && (nutrients.satFat * 9) <= (nutrients.calories * 0.15)) {
+        claims.push({ title: "Low Saturated Fat", rule: "21 CFR § 101.62(c)(2)", status: "approved", desc: `≤1g sat fat and ≤15% of calories from saturated fat.` });
+      }
+
+      // 21 CFR § 101.60 Sugar & Added Sugar
+      if (nutrients.addedSugars === 0) {
+        claims.push({ title: "No Added Sugars", rule: "21 CFR § 101.60(c)(2)", status: "approved", desc: `No sugars added during processing or packaging.` });
+      }
+      if (nutrients.sugars <= 0.5) {
+        claims.push({ title: "Sugar Free", rule: "21 CFR § 101.60(c)(1)", status: "approved", desc: `<0.5g total sugars per serving.` });
+      }
+
+      // Micronutrients (Iron, Calcium, Vit D, Potassium)
+      const ironDV = (nutrients.iron / FDA_DAILY_VALUES.iron) * 100;
+      if (ironDV >= 20) {
+        claims.push({ title: "High in Iron", rule: "21 CFR § 101.54(b)", status: "approved", desc: `${ironDV.toFixed(0)}% DV iron per serving.` });
+      } else if (ironDV >= 10) {
+        claims.push({ title: "Good Source of Iron", rule: "21 CFR § 101.54(c)", status: "approved", desc: `${ironDV.toFixed(0)}% DV iron per serving.` });
+      }
+
+      const calciumDV = (nutrients.calcium / FDA_DAILY_VALUES.calcium) * 100;
+      if (calciumDV >= 20) {
+        claims.push({ title: "High in Calcium", rule: "21 CFR § 101.54(b)", status: "approved", desc: `${calciumDV.toFixed(0)}% DV calcium per serving.` });
+      } else if (calciumDV >= 10) {
+        claims.push({ title: "Good Source of Calcium", rule: "21 CFR § 101.54(c)", status: "approved", desc: `${calciumDV.toFixed(0)}% DV calcium.` });
+      }
+
+      // Render Claim Cards
+      claims.forEach(c => {
+        const card = document.createElement('div');
+        const isApproved = c.status === 'approved';
+        card.className = `p-3 rounded-xl border transition-all ${
+          isApproved 
+            ? 'bg-emerald-50/60 border-emerald-200 text-emerald-950 hover:bg-emerald-50' 
+            : 'bg-neutral-50 border-neutral-200 text-neutral-600'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-xs flex items-center space-x-1.5">
+              <span class="w-2 h-2 rounded-full ${isApproved ? 'bg-emerald-500' : 'bg-neutral-300'}"></span>
+              <span>${c.title}</span>
+            </span>
+            <span class="text-[10px] font-mono uppercase tracking-wider ${isApproved ? 'text-emerald-700' : 'text-neutral-400'}">
+              ${c.rule}
+            </span>
+          </div>
+          <div class="text-[11px] leading-relaxed ${isApproved ? 'text-emerald-800' : 'text-neutral-500'}">
+            ${c.desc}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // 6. Check Disqualifying Nutrients Rule: 21 CFR § 101.13(h)
+      // If a food exceeds 13.0g Fat, 4.0g Sat Fat, 60mg Cholesterol, or 480mg Sodium per serving,
+      // it cannot make positive health claims without mandatory disclosure: "See nutrition information for fat content".
+      const disqAlert = document.getElementById('disqualificationAlert');
+      const disqReason = document.getElementById('disqualificationReason');
+      let disqualifiers = [];
+
+      if (nutrients.fat > 13.0) disqualifiers.push(`Total Fat (${nutrients.fat}g > 13g limit)`);
+      if (nutrients.satFat > 4.0) disqualifiers.push(`Saturated Fat (${nutrients.satFat}g > 4g limit)`);
+      if (nutrients.cholesterol > 60) disqualifiers.push(`Cholesterol (${nutrients.cholesterol}mg > 60mg limit)`);
+      if (nutrients.sodium > 480) disqualifiers.push(`Sodium (${nutrients.sodium}mg > 480mg limit)`);
+
+      if (disqualifiers.length > 0) {
+        disqAlert.classList.remove('hidden');
+        disqReason.textContent = ` Food exceeds statutory threshold for: ${disqualifiers.join(', ')}. Front-of-pack claim requires statement: "See nutrition panel for saturated fat/sodium content".`;
+      } else {
+        disqAlert.classList.add('hidden');
+      }
+    }
+
+    // ==========================================
+    // Print / Export Label Sheet
+    // ==========================================
+    function printOrExportLabel() {
+      window.print();
+    }
+
+    function copyNutritionSummary() {
+      const productName = document.getElementById('productNameInput').value;
+      const cal = document.getElementById('lblCalories').textContent;
+      const prot = document.getElementById('lblProtein').textContent;
+      const fat = document.getElementById('lblTotalFat').textContent;
+      const carbs = document.getElementById('lblCarbs').textContent;
+      const sodium = document.getElementById('lblSodium').textContent;
+      const fiber = document.getElementById('lblFiber').textContent;
+
+      const summary = `Product: ${productName}\nCalories: ${cal} kcal\nProtein: ${prot}\nTotal Fat: ${fat}\nTotal Carbs: ${carbs}\nFiber: ${fiber}\nSodium: ${sodium}\n[Engine: VITA FDA 2016 Regulatory Suite]`;
+      
+      navigator.clipboard.writeText(summary).then(() => {
+        showToast("Nutrition summary copied to clipboard");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = msg;
+      toast.classList.remove('translate-y-12', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.add('translate-y-12', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
