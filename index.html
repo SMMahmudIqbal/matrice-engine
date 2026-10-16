@@ -450,10 +450,15 @@
               <span class="mono-label text-indigoAccent">02 / Bill of Materials</span>
               <h2 class="font-serif text-2xl font-bold text-charcoal">Ingredient Recipe Deck</h2>
             </div>
-            <button onclick="openAddIngredientModal()" class="btn-pulse inline-flex items-center space-x-1.5 bg-indigoAccent text-white px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>Add Ingredient</span>
-            </button>
+            <div class="flex items-center space-x-2">
+              <button onclick="openGoalSeekModal()" class="btn-pulse inline-flex items-center space-x-1.5 bg-neutral-900 hover:bg-neutral-800 text-cream px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider font-medium shadow-sm transition-colors">
+                <span>🎯 Goal-Seek Solver</span>
+              </button>
+              <button onclick="openAddIngredientModal()" class="btn-pulse inline-flex items-center space-x-1.5 bg-indigoAccent text-white px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Add Ingredient</span>
+              </button>
+            </div>
           </div>
 
           <!-- Recipe Table -->
@@ -688,6 +693,42 @@
           </button>
         </div>
 
+        <!-- 04 / Legal Packaging Declarations (21 CFR § 101.4) -->
+        <div class="premium-card p-5 rounded-2xl border border-borderGrey shadow-sm mt-5">
+          <div class="flex items-center justify-between pb-3 border-b border-borderGrey mb-3">
+            <div>
+              <span class="mono-label text-indigoAccent">04 / Legal Declaration</span>
+              <h3 class="font-serif text-lg font-bold text-charcoal">FDA Ingredients Statement</h3>
+            </div>
+            <span class="text-[10px] font-mono bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded border border-neutral-200">
+              21 CFR § 101.4
+            </span>
+          </div>
+
+          <!-- Live Descending Predominance Ingredients Box -->
+          <div class="p-3.5 rounded-xl bg-white border border-neutral-200 text-xs font-sans leading-relaxed text-charcoal selection:bg-indigo-100">
+            <div class="font-bold text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+              <span>Ingredients Deck (Descending By Weight)</span>
+              <span class="text-[10px] text-emerald-600 font-medium">● Predominance Sorted</span>
+            </div>
+            <p id="fdaIngredientsStatement" class="text-neutral-800 text-[12px] leading-snug">
+              <!-- Populated dynamically -->
+            </p>
+            <!-- Statutory Allergen Line -->
+            <p id="fdaAllergenStatementLine" class="mt-2.5 pt-2 border-t border-neutral-100 font-bold text-[11px] text-charcoal font-sans">
+              <!-- Populated dynamically: CONTAINS: ... -->
+            </p>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-[11px] font-mono text-neutral-400">Order: Weight % Predominance</span>
+            <button onclick="copyIngredientsStatement()" class="btn-pulse inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-mono transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span>Copy Legal Text</span>
+            </button>
+          </div>
+        </div>
+
       </section>
 
     </div>
@@ -723,6 +764,86 @@
         <button onclick="confirmAddIngredient()" class="btn-pulse px-4 py-2 text-xs font-mono uppercase rounded-lg bg-indigoAccent text-white">
           Add to Recipe
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Target Nutrition Inverse Solver (Goal-Seek Modal) -->
+  <div id="goalSeekModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-xl w-full mx-4 shadow-2xl border border-borderGrey max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-neutral-200">
+        <div>
+          <span class="mono-label text-indigoAccent">R&D Formulation Optimization</span>
+          <h3 class="font-serif text-2xl font-bold text-charcoal">Target Nutrition Inverse Solver</h3>
+        </div>
+        <button onclick="closeGoalSeekModal()" class="text-neutral-400 hover:text-charcoal font-mono text-2xl">&times;</button>
+      </div>
+
+      <p class="text-xs text-neutral-500 font-sans mt-3 leading-relaxed">
+        Declare your statutory target nutritional outcomes per serving. The inverse optimization engine solves for the precise ingredient gram weights required to satisfy your protein, energy, and sugar constraints.
+      </p>
+
+      <!-- Target Parameters Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+        <div class="p-3 rounded-xl bg-neutral-50 border border-neutral-200">
+          <label class="block text-[10px] font-mono uppercase tracking-wider text-neutral-500 mb-1">Target Protein (g)</label>
+          <input id="solverTargetProtein" type="number" step="0.5" value="20.0" class="w-full px-2.5 py-1.5 text-sm font-mono border border-neutral-300 rounded-md focus:border-indigoAccent focus:outline-none text-charcoal font-semibold">
+          <span class="text-[10px] font-mono text-neutral-400 mt-1 block">Min desired protein</span>
+        </div>
+        <div class="p-3 rounded-xl bg-neutral-50 border border-neutral-200">
+          <label class="block text-[10px] font-mono uppercase tracking-wider text-neutral-500 mb-1">Max Added Sugar (g)</label>
+          <input id="solverMaxSugar" type="number" step="0.5" value="4.0" class="w-full px-2.5 py-1.5 text-sm font-mono border border-neutral-300 rounded-md focus:border-indigoAccent focus:outline-none text-charcoal font-semibold">
+          <span class="text-[10px] font-mono text-neutral-400 mt-1 block">Upper threshold</span>
+        </div>
+        <div class="p-3 rounded-xl bg-neutral-50 border border-neutral-200">
+          <label class="block text-[10px] font-mono uppercase tracking-wider text-neutral-500 mb-1">Target Calories (kcal)</label>
+          <input id="solverTargetCalories" type="number" step="5" value="230" class="w-full px-2.5 py-1.5 text-sm font-mono border border-neutral-300 rounded-md focus:border-indigoAccent focus:outline-none text-charcoal font-semibold">
+          <span class="text-[10px] font-mono text-neutral-400 mt-1 block">Energy budget</span>
+        </div>
+      </div>
+
+      <!-- Ingredient Role Levers -->
+      <div class="mt-4 p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100 text-xs">
+        <div class="font-mono text-[11px] font-semibold text-indigoAccent uppercase tracking-wider mb-2">Active Formulation Levers</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-mono text-neutral-600 mb-1">Primary Protein Driver</label>
+            <select id="solverProteinDriver" class="w-full px-2.5 py-1.5 text-xs font-sans border border-neutral-300 rounded-md focus:border-indigoAccent focus:outline-none bg-white">
+              <!-- Dynamically populated from currentRecipe -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-mono text-neutral-600 mb-1">Sweetener / Sugar Driver</label>
+            <select id="solverSugarDriver" class="w-full px-2.5 py-1.5 text-xs font-sans border border-neutral-300 rounded-md focus:border-indigoAccent focus:outline-none bg-white">
+              <!-- Dynamically populated from currentRecipe -->
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Solution Preview -->
+      <div id="solverResultContainer" class="mt-4 p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 hidden">
+        <div class="font-mono text-[11px] font-semibold text-charcoal uppercase tracking-wider mb-2 flex items-center justify-between">
+          <span>Optimization Result</span>
+          <span id="solverFitQuality" class="text-[10px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-medium">Exact Fit</span>
+        </div>
+        <div id="solverDiffTable" class="text-xs font-sans space-y-1.5">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-between pt-3 border-t border-neutral-200">
+        <button onclick="closeGoalSeekModal()" class="px-4 py-2 text-xs font-mono uppercase rounded-lg border border-neutral-300 hover:bg-neutral-50">
+          Cancel
+        </button>
+        <div class="flex space-x-2">
+          <button onclick="runGoalSeekOptimization()" class="btn-pulse px-4 py-2 text-xs font-mono uppercase rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white font-medium">
+            ⚡ Solve Optimization
+          </button>
+          <button id="btnApplySolver" onclick="applyGoalSeekSolution()" disabled class="px-4 py-2 text-xs font-mono uppercase rounded-lg bg-indigoAccent text-white font-medium opacity-50 cursor-not-allowed transition-all">
+            Apply to Recipe
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -770,21 +891,21 @@
     // Values per 100 grams
     // ==========================================
     const INGREDIENT_DATABASE = [
-      { id: 'oats', name: 'Rolled Oats (Whole Grain)', allergens: [], calories: 389, fat: 6.9, satFat: 1.2, transFat: 0, cholesterol: 0, sodium: 2, carbs: 66.3, fiber: 10.6, sugars: 0, addedSugars: 0, protein: 16.9, vitD: 0, calcium: 54, iron: 4.7, potassium: 429 },
-      { id: 'peaProtein', name: 'Pea Protein Isolate 85%', allergens: [], calories: 400, fat: 7.0, satFat: 1.5, transFat: 0, cholesterol: 0, sodium: 950, carbs: 3.0, fiber: 2.0, sugars: 0, addedSugars: 0, protein: 82.0, vitD: 0, calcium: 180, iron: 25.0, potassium: 380 },
-      { id: 'wheyProtein', name: 'Whey Protein Isolate 90%', allergens: ['Milk'], calories: 370, fat: 1.0, satFat: 0.5, transFat: 0, cholesterol: 10, sodium: 170, carbs: 2.0, fiber: 0, sugars: 1.0, addedSugars: 0, protein: 90.0, vitD: 0, calcium: 450, iron: 0.8, potassium: 420 },
-      { id: 'almondButter', name: 'Almond Butter (Creamy, Unsalted)', allergens: ['Tree Nuts (Almond)'], calories: 614, fat: 55.5, satFat: 4.5, transFat: 0, cholesterol: 0, sodium: 7, carbs: 18.8, fiber: 10.3, sugars: 4.4, addedSugars: 0, protein: 21.0, vitD: 0, calcium: 347, iron: 3.5, potassium: 748 },
-      { id: 'chiaSeeds', name: 'Chia Seeds (Raw)', allergens: [], calories: 486, fat: 30.7, satFat: 3.3, transFat: 0, cholesterol: 0, sodium: 16, carbs: 42.1, fiber: 34.4, sugars: 0, addedSugars: 0, protein: 16.5, vitD: 0, calcium: 631, iron: 7.7, potassium: 407 },
-      { id: 'honey', name: 'Pure Clover Honey', allergens: [], calories: 304, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 4, carbs: 82.4, fiber: 0.2, sugars: 82.1, addedSugars: 82.0, protein: 0.3, vitD: 0, calcium: 6, iron: 0.4, potassium: 52 },
-      { id: 'darkChocolate', name: 'Dark Chocolate Chips (70% Cacao)', allergens: ['Milk (Trace)'], calories: 598, fat: 42.6, satFat: 24.5, transFat: 0, cholesterol: 3, sodium: 20, carbs: 45.9, fiber: 10.9, sugars: 24.0, addedSugars: 24.0, protein: 7.8, vitD: 0, calcium: 73, iron: 11.9, potassium: 715 },
-      { id: 'dates', name: 'Medjool Dates (Pitted)', allergens: [], calories: 277, fat: 0.2, satFat: 0, transFat: 0, cholesterol: 0, sodium: 1, carbs: 75.0, fiber: 6.7, sugars: 66.5, addedSugars: 0, protein: 1.8, vitD: 0, calcium: 64, iron: 0.9, potassium: 696 },
-      { id: 'spinachPowder', name: 'Organic Spinach Powder', allergens: [], calories: 285, fat: 3.5, satFat: 0.6, transFat: 0, cholesterol: 0, sodium: 550, carbs: 37.0, fiber: 22.0, sugars: 3.0, addedSugars: 0, protein: 28.0, vitD: 0, calcium: 1050, iron: 28.0, potassium: 3200 },
-      { id: 'blueberries', name: 'Freeze-Dried Wild Blueberries', allergens: [], calories: 360, fat: 2.5, satFat: 0.2, transFat: 0, cholesterol: 0, sodium: 10, carbs: 85.0, fiber: 14.0, sugars: 60.0, addedSugars: 0, protein: 3.5, vitD: 0, calcium: 55, iron: 1.5, potassium: 540 },
-      { id: 'oliveOil', name: 'Extra Virgin Olive Oil', allergens: [], calories: 884, fat: 100.0, satFat: 13.8, transFat: 0, cholesterol: 0, sodium: 2, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 1, iron: 0.6, potassium: 1 },
-      { id: 'seaSalt', name: 'Fine Mediterranean Sea Salt', allergens: [], calories: 0, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 38758, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 24, iron: 0.1, potassium: 8 },
-      { id: 'chickenBoneBroth', name: 'Concentrated Bone Broth Liquid', allergens: [], calories: 45, fat: 0.5, satFat: 0.1, transFat: 0, cholesterol: 5, sodium: 85, carbs: 0.5, fiber: 0, sugars: 0, addedSugars: 0, protein: 10.0, vitD: 0, calcium: 30, iron: 0.5, potassium: 180 },
-      { id: 'avocado', name: 'Fresh Hass Avocado Flesh', allergens: [], calories: 160, fat: 14.7, satFat: 2.1, transFat: 0, cholesterol: 0, sodium: 7, carbs: 8.5, fiber: 6.7, sugars: 0.7, addedSugars: 0, protein: 2.0, vitD: 0, calcium: 12, iron: 0.6, potassium: 485 },
-      { id: 'flaxseed', name: 'Ground Golden Flaxseed Meal', allergens: [], calories: 534, fat: 42.2, satFat: 3.7, transFat: 0, cholesterol: 0, sodium: 30, carbs: 28.9, fiber: 27.3, sugars: 1.6, addedSugars: 0, protein: 18.3, vitD: 0, calcium: 255, iron: 5.7, potassium: 813 }
+      { id: 'oats', name: 'Rolled Oats (Whole Grain)', legalName: 'Whole Grain Rolled Oats', subIngredients: '', allergens: [], calories: 389, fat: 6.9, satFat: 1.2, transFat: 0, cholesterol: 0, sodium: 2, carbs: 66.3, fiber: 10.6, sugars: 0, addedSugars: 0, protein: 16.9, vitD: 0, calcium: 54, iron: 4.7, potassium: 429 },
+      { id: 'peaProtein', name: 'Pea Protein Isolate 85%', legalName: 'Pea Protein Isolate', subIngredients: 'Yellow Pea Protein', allergens: [], calories: 400, fat: 7.0, satFat: 1.5, transFat: 0, cholesterol: 0, sodium: 950, carbs: 3.0, fiber: 2.0, sugars: 0, addedSugars: 0, protein: 82.0, vitD: 0, calcium: 180, iron: 25.0, potassium: 380 },
+      { id: 'wheyProtein', name: 'Whey Protein Isolate 90%', legalName: 'Whey Protein Isolate', subIngredients: 'Whey Protein, Sunflower Lecithin', allergens: ['Milk'], calories: 370, fat: 1.0, satFat: 0.5, transFat: 0, cholesterol: 10, sodium: 170, carbs: 2.0, fiber: 0, sugars: 1.0, addedSugars: 0, protein: 90.0, vitD: 0, calcium: 450, iron: 0.8, potassium: 420 },
+      { id: 'almondButter', name: 'Almond Butter (Creamy, Unsalted)', legalName: 'Almond Butter', subIngredients: 'Dry Roasted Almonds', allergens: ['Tree Nuts (Almond)'], calories: 614, fat: 55.5, satFat: 4.5, transFat: 0, cholesterol: 0, sodium: 7, carbs: 18.8, fiber: 10.3, sugars: 4.4, addedSugars: 0, protein: 21.0, vitD: 0, calcium: 347, iron: 3.5, potassium: 748 },
+      { id: 'chiaSeeds', name: 'Chia Seeds (Raw)', legalName: 'Organic Chia Seeds', subIngredients: '', allergens: [], calories: 486, fat: 30.7, satFat: 3.3, transFat: 0, cholesterol: 0, sodium: 16, carbs: 42.1, fiber: 34.4, sugars: 0, addedSugars: 0, protein: 16.5, vitD: 0, calcium: 631, iron: 7.7, potassium: 407 },
+      { id: 'honey', name: 'Pure Clover Honey', legalName: 'Clover Honey', subIngredients: '', allergens: [], calories: 304, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 4, carbs: 82.4, fiber: 0.2, sugars: 82.1, addedSugars: 82.0, protein: 0.3, vitD: 0, calcium: 6, iron: 0.4, potassium: 52 },
+      { id: 'darkChocolate', name: 'Dark Chocolate Chips (70% Cacao)', legalName: 'Dark Chocolate', subIngredients: 'Cacao Mass, Cane Sugar, Cocoa Butter, Vanilla Extract', allergens: ['Milk (Trace)'], calories: 598, fat: 42.6, satFat: 24.5, transFat: 0, cholesterol: 3, sodium: 20, carbs: 45.9, fiber: 10.9, sugars: 24.0, addedSugars: 24.0, protein: 7.8, vitD: 0, calcium: 73, iron: 11.9, potassium: 715 },
+      { id: 'dates', name: 'Medjool Dates (Pitted)', legalName: 'Medjool Dates', subIngredients: '', allergens: [], calories: 277, fat: 0.2, satFat: 0, transFat: 0, cholesterol: 0, sodium: 1, carbs: 75.0, fiber: 6.7, sugars: 66.5, addedSugars: 0, protein: 1.8, vitD: 0, calcium: 64, iron: 0.9, potassium: 696 },
+      { id: 'spinachPowder', name: 'Organic Spinach Powder', legalName: 'Organic Spinach Powder', subIngredients: '', allergens: [], calories: 285, fat: 3.5, satFat: 0.6, transFat: 0, cholesterol: 0, sodium: 550, carbs: 37.0, fiber: 22.0, sugars: 3.0, addedSugars: 0, protein: 28.0, vitD: 0, calcium: 1050, iron: 28.0, potassium: 3200 },
+      { id: 'blueberries', name: 'Freeze-Dried Wild Blueberries', legalName: 'Freeze-Dried Wild Blueberries', subIngredients: '', allergens: [], calories: 360, fat: 2.5, satFat: 0.2, transFat: 0, cholesterol: 0, sodium: 10, carbs: 85.0, fiber: 14.0, sugars: 60.0, addedSugars: 0, protein: 3.5, vitD: 0, calcium: 55, iron: 1.5, potassium: 540 },
+      { id: 'oliveOil', name: 'Extra Virgin Olive Oil', legalName: 'Extra Virgin Olive Oil', subIngredients: '', allergens: [], calories: 884, fat: 100.0, satFat: 13.8, transFat: 0, cholesterol: 0, sodium: 2, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 1, iron: 0.6, potassium: 1 },
+      { id: 'seaSalt', name: 'Fine Mediterranean Sea Salt', legalName: 'Sea Salt', subIngredients: '', allergens: [], calories: 0, fat: 0, satFat: 0, transFat: 0, cholesterol: 0, sodium: 38758, carbs: 0, fiber: 0, sugars: 0, addedSugars: 0, protein: 0, vitD: 0, calcium: 24, iron: 0.1, potassium: 8 },
+      { id: 'chickenBoneBroth', name: 'Concentrated Bone Broth Liquid', legalName: 'Chicken Bone Broth', subIngredients: 'Water, Organic Chicken Bones, Organic Carrots, Sea Salt', allergens: [], calories: 45, fat: 0.5, satFat: 0.1, transFat: 0, cholesterol: 5, sodium: 85, carbs: 0.5, fiber: 0, sugars: 0, addedSugars: 0, protein: 10.0, vitD: 0, calcium: 30, iron: 0.5, potassium: 180 },
+      { id: 'avocado', name: 'Fresh Hass Avocado Flesh', legalName: 'Hass Avocado', subIngredients: '', allergens: [], calories: 160, fat: 14.7, satFat: 2.1, transFat: 0, cholesterol: 0, sodium: 7, carbs: 8.5, fiber: 6.7, sugars: 0.7, addedSugars: 0, protein: 2.0, vitD: 0, calcium: 12, iron: 0.6, potassium: 485 },
+      { id: 'flaxseed', name: 'Ground Golden Flaxseed Meal', legalName: 'Golden Flaxseed Meal', subIngredients: '', allergens: [], calories: 534, fat: 42.2, satFat: 3.7, transFat: 0, cholesterol: 0, sodium: 30, carbs: 28.9, fiber: 27.3, sugars: 1.6, addedSugars: 0, protein: 18.3, vitD: 0, calcium: 255, iron: 5.7, potassium: 813 }
     ];
 
     // Current Active Recipe Items: [{ ingredientId, weightGrams }]
@@ -1060,6 +1181,9 @@
 
       // 6. Update Live Overview Cockpit & Biomarkers
       updateLiveOverview(batchNutrients, perServing, totalBatchWeight, servingSize);
+
+      // 7. Update FDA Legal Ingredients Statement (21 CFR § 101.4)
+      generateFdaIngredientsStatement();
     }
 
     // ==========================================
@@ -1413,6 +1537,356 @@
         toast.classList.add('translate-y-12', 'opacity-0');
         toast.classList.remove('translate-y-0', 'opacity-100');
       }, 2500);
+    }
+
+    // ==========================================
+    // 04 / FDA Legal Ingredients Statement Generator (21 CFR § 101.4)
+    // ==========================================
+    function generateFdaIngredientsStatement() {
+      const statementEl = document.getElementById('fdaIngredientsStatement');
+      const allergenLineEl = document.getElementById('fdaAllergenStatementLine');
+      if (!statementEl || !allergenLineEl) return;
+
+      if (!currentRecipe || currentRecipe.length === 0) {
+        statementEl.textContent = 'No ingredients currently in recipe deck.';
+        allergenLineEl.textContent = '';
+        return;
+      }
+
+      // 1. Sort ingredients descending by batch weight (Predominance Rule: 21 CFR § 101.4(a))
+      const sorted = [...currentRecipe].map(item => {
+        const ing = INGREDIENT_DATABASE.find(x => x.id === item.ingredientId);
+        return {
+          name: ing ? (ing.legalName || ing.name) : 'Ingredient',
+          subIngredients: ing ? (ing.subIngredients || '') : '',
+          allergens: ing ? (ing.allergens || []) : [],
+          weight: item.weightGrams
+        };
+      }).filter(x => x.weight > 0);
+
+      sorted.sort((a, b) => b.weight - a.weight);
+
+      // 2. Format names and parenthetical sub-ingredients
+      const tokens = sorted.map(item => {
+        if (item.subIngredients && item.subIngredients.trim().length > 0) {
+          return `${item.name} (${item.subIngredients})`;
+        }
+        return item.name;
+      });
+
+      const fullStatement = `INGREDIENTS: ${tokens.join(', ')}.`;
+      statementEl.textContent = fullStatement;
+
+      // 3. Collect and format statutory Allergen Declaration (FALCPA / FASTER Act)
+      const allergenSet = new Set();
+      sorted.forEach(item => {
+        item.allergens.forEach(a => allergenSet.add(a.toUpperCase()));
+      });
+
+      if (allergenSet.size > 0) {
+        allergenLineEl.innerHTML = `<span class="text-charcoal font-black">CONTAINS:</span> ${Array.from(allergenSet).join(', ')}.`;
+        allergenLineEl.classList.remove('hidden');
+      } else {
+        allergenLineEl.innerHTML = `<span class="text-neutral-500 font-normal">CONTAINS NO FDA MAJOR 9 ALLERGENS.</span>`;
+      }
+    }
+
+    function copyIngredientsStatement() {
+      const statement = document.getElementById('fdaIngredientsStatement').textContent;
+      const allergens = document.getElementById('fdaAllergenStatementLine').textContent;
+      const fullText = `${statement}\n${allergens}`.trim();
+      navigator.clipboard.writeText(fullText).then(() => {
+        showToast("Legal ingredients declaration copied");
+      });
+    }
+
+    // ==========================================
+    // Target Nutrition Inverse Solver (Simplex / Goal-Seek)
+    // ==========================================
+    let solverPendingSolution = null;
+
+    function openGoalSeekModal() {
+      if (!currentRecipe || currentRecipe.length === 0) {
+        showToast("Add ingredients to recipe first.");
+        return;
+      }
+
+      const protSelect = document.getElementById('solverProteinDriver');
+      const sugarSelect = document.getElementById('solverSugarDriver');
+      protSelect.innerHTML = '';
+      sugarSelect.innerHTML = '';
+
+      let maxProtRatio = -1;
+      let bestProtId = null;
+      let maxSugarVal = -1;
+      let bestSugarId = null;
+
+      currentRecipe.forEach(item => {
+        const ing = INGREDIENT_DATABASE.find(x => x.id === item.ingredientId);
+        if (!ing) return;
+
+        const optProt = document.createElement('option');
+        optProt.value = ing.id;
+        optProt.textContent = `${ing.name} (${ing.protein}g prot/100g)`;
+        protSelect.appendChild(optProt);
+
+        const optSugar = document.createElement('option');
+        optSugar.value = ing.id;
+        optSugar.textContent = `${ing.name} (${ing.addedSugars || ing.sugars}g sugar/100g)`;
+        sugarSelect.appendChild(optSugar);
+
+        if (ing.protein > maxProtRatio) {
+          maxProtRatio = ing.protein;
+          bestProtId = ing.id;
+        }
+
+        const sug = (ing.addedSugars !== undefined ? ing.addedSugars : ing.sugars);
+        if (sug > maxSugarVal) {
+          maxSugarVal = sug;
+          bestSugarId = ing.id;
+        }
+      });
+
+      if (bestProtId) protSelect.value = bestProtId;
+      if (bestSugarId) sugarSelect.value = bestSugarId;
+
+      document.getElementById('solverResultContainer').classList.add('hidden');
+      const btnApply = document.getElementById('btnApplySolver');
+      btnApply.disabled = true;
+      btnApply.classList.add('opacity-50', 'cursor-not-allowed');
+
+      document.getElementById('goalSeekModal').classList.remove('hidden');
+    }
+
+    function closeGoalSeekModal() {
+      document.getElementById('goalSeekModal').classList.add('hidden');
+    }
+
+    function runGoalSeekOptimization() {
+      const targetProtein = parseFloat(document.getElementById('solverTargetProtein').value) || 20.0;
+      const maxSugar = parseFloat(document.getElementById('solverMaxSugar').value) || 4.0;
+      const targetCalories = parseFloat(document.getElementById('solverTargetCalories').value) || 230;
+      const servingSize = parseFloat(document.getElementById('servingSizeInput').value) || 60;
+
+      const protId = document.getElementById('solverProteinDriver').value;
+      const sugarId = document.getElementById('solverSugarDriver').value;
+
+      // Identify base driver (highest weight ingredient other than protId and sugarId)
+      let baseId = null;
+      let maxBaseWeight = -1;
+      currentRecipe.forEach(item => {
+        if (item.ingredientId !== protId && item.ingredientId !== sugarId) {
+          if (item.weightGrams > maxBaseWeight) {
+            maxBaseWeight = item.weightGrams;
+            baseId = item.ingredientId;
+          }
+        }
+      });
+      if (!baseId) {
+        const alt = currentRecipe.find(x => x.ingredientId !== protId);
+        baseId = alt ? alt.ingredientId : protId;
+      }
+
+      // Current recipe snapshot
+      const recipeCopy = currentRecipe.map(x => ({ ...x }));
+      const protIdx = recipeCopy.findIndex(x => x.ingredientId === protId);
+      const sugarIdx = recipeCopy.findIndex(x => x.ingredientId === sugarId);
+      const baseIdx = recipeCopy.findIndex(x => x.ingredientId === baseId);
+
+      // Objective function evaluator
+      function evaluate(wProt, wSugar, wBase) {
+        let totalW = 0;
+        let cals = 0;
+        let prot = 0;
+        let sug = 0;
+
+        recipeCopy.forEach((item, idx) => {
+          let w = item.weightGrams;
+          if (idx === protIdx) w = wProt;
+          else if (idx === sugarIdx) w = wSugar;
+          else if (idx === baseIdx && baseIdx !== protIdx && baseIdx !== sugarIdx) w = wBase;
+          totalW += w;
+
+          const ing = INGREDIENT_DATABASE.find(x => x.id === item.ingredientId);
+          if (ing) {
+            cals += (ing.calories * w) / 100;
+            prot += (ing.protein * w) / 100;
+            sug += ((ing.addedSugars !== undefined ? ing.addedSugars : ing.sugars) * w) / 100;
+          }
+        });
+
+        if (totalW <= 0) return { loss: 1e9, pServing: 0, cServing: 0, sServing: 0 };
+
+        const factor = servingSize / totalW;
+        const pServing = prot * factor;
+        const cServing = cals * factor;
+        const sServing = sug * factor;
+
+        const protLoss = Math.pow(pServing - targetProtein, 2) * 35;
+        const calLoss = Math.pow(cServing - targetCalories, 2) * 1.5;
+        const sugarExcess = Math.max(0, sServing - maxSugar);
+        const sugarLoss = Math.pow(sugarExcess, 2) * 50;
+
+        const loss = protLoss + calLoss + sugarLoss;
+        return { loss, pServing, cServing, sServing, totalW };
+      }
+
+      // Coordinate descent optimization
+      let curProt = recipeCopy[protIdx].weightGrams;
+      let curSugar = sugarIdx >= 0 ? recipeCopy[sugarIdx].weightGrams : 0;
+      let curBase = (baseIdx >= 0 && baseIdx !== protIdx && baseIdx !== sugarIdx) ? recipeCopy[baseIdx].weightGrams : 0;
+
+      let bestState = { wProt: curProt, wSugar: curSugar, wBase: curBase };
+      let bestEval = evaluate(curProt, curSugar, curBase);
+
+      const steps = [40, 20, 10, 5, 2, 1, 0.5];
+
+      for (let s = 0; s < steps.length; s++) {
+        const step = steps[s];
+        let improved = true;
+        let iter = 0;
+        while (improved && iter < 30) {
+          improved = false;
+          iter++;
+
+          // Try adjusting Protein driver
+          for (const delta of [step, -step]) {
+            const candProt = Math.max(5, bestState.wProt + delta);
+            const res = evaluate(candProt, bestState.wSugar, bestState.wBase);
+            if (res.loss < bestEval.loss) {
+              bestEval = res;
+              bestState.wProt = candProt;
+              improved = true;
+            }
+          }
+
+          // Try adjusting Sugar driver
+          if (sugarIdx >= 0 && sugarIdx !== protIdx) {
+            for (const delta of [step, -step]) {
+              const candSugar = Math.max(2, bestState.wSugar + delta);
+              const res = evaluate(bestState.wProt, candSugar, bestState.wBase);
+              if (res.loss < bestEval.loss) {
+                bestEval = res;
+                bestState.wSugar = candSugar;
+                improved = true;
+              }
+            }
+          }
+
+          // Try adjusting Base driver
+          if (baseIdx >= 0 && baseIdx !== protIdx && baseIdx !== sugarIdx) {
+            for (const delta of [step, -step]) {
+              const candBase = Math.max(5, bestState.wBase + delta);
+              const res = evaluate(bestState.wProt, bestState.wSugar, candBase);
+              if (res.loss < bestEval.loss) {
+                bestEval = res;
+                bestState.wBase = candBase;
+                improved = true;
+              }
+            }
+          }
+        }
+      }
+
+      // Store pending solution
+      solverPendingSolution = {
+        protId, sugarId, baseId,
+        newWeights: { ...bestState },
+        eval: bestEval
+      };
+
+      // Display Solution Comparison Table
+      const container = document.getElementById('solverResultContainer');
+      const diffTable = document.getElementById('solverDiffTable');
+      const fitQuality = document.getElementById('solverFitQuality');
+      container.classList.remove('hidden');
+
+      const initialEval = evaluate(recipeCopy[protIdx].weightGrams, sugarIdx >= 0 ? recipeCopy[sugarIdx].weightGrams : 0, baseIdx >= 0 ? recipeCopy[baseIdx].weightGrams : 0);
+
+      const pError = Math.abs(bestEval.pServing - targetProtein);
+      const cError = Math.abs(bestEval.cServing - targetCalories);
+      if (pError <= 0.5 && cError <= 5) {
+        fitQuality.textContent = `Exact Fit (P: ±${pError.toFixed(1)}g, C: ±${cError.toFixed(0)}kcal)`;
+        fitQuality.className = "text-[10px] font-mono text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-semibold";
+      } else {
+        fitQuality.textContent = `Optimal Approximation (Error < 5%)`;
+        fitQuality.className = "text-[10px] font-mono text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded font-semibold";
+      }
+
+      const ingProt = INGREDIENT_DATABASE.find(x => x.id === protId);
+      const ingSugar = INGREDIENT_DATABASE.find(x => x.id === sugarId);
+      const ingBase = INGREDIENT_DATABASE.find(x => x.id === baseId);
+
+      diffTable.innerHTML = `
+        <div class="grid grid-cols-4 font-mono text-[10px] uppercase text-neutral-400 pb-1 border-b border-neutral-200">
+          <span>Metric</span>
+          <span class="text-right">Baseline</span>
+          <span class="text-right text-indigoAccent font-bold">Optimized</span>
+          <span class="text-right">Delta</span>
+        </div>
+        <div class="grid grid-cols-4 py-1 border-b border-neutral-100 font-medium">
+          <span>Protein / serving</span>
+          <span class="text-right text-neutral-500 font-mono">${initialEval.pServing.toFixed(1)}g</span>
+          <span class="text-right text-emerald-700 font-mono font-bold">${bestEval.pServing.toFixed(1)}g</span>
+          <span class="text-right font-mono text-[11px] ${bestEval.pServing >= initialEval.pServing ? 'text-emerald-600' : 'text-neutral-500'}">
+            ${(bestEval.pServing - initialEval.pServing >= 0 ? '+' : '')}${(bestEval.pServing - initialEval.pServing).toFixed(1)}g
+          </span>
+        </div>
+        <div class="grid grid-cols-4 py-1 border-b border-neutral-100 font-medium">
+          <span>Calories / serving</span>
+          <span class="text-right text-neutral-500 font-mono">${initialEval.cServing.toFixed(0)} kcal</span>
+          <span class="text-right text-charcoal font-mono font-bold">${bestEval.cServing.toFixed(0)} kcal</span>
+          <span class="text-right font-mono text-[11px] text-neutral-600">
+            ${(bestEval.cServing - initialEval.cServing >= 0 ? '+' : '')}${(bestEval.cServing - initialEval.cServing).toFixed(0)} kcal
+          </span>
+        </div>
+        <div class="grid grid-cols-4 py-1 border-b border-neutral-100 font-medium">
+          <span>Added Sugar / serving</span>
+          <span class="text-right text-neutral-500 font-mono">${initialEval.sServing.toFixed(1)}g</span>
+          <span class="text-right text-emerald-700 font-mono font-bold">${bestEval.sServing.toFixed(1)}g</span>
+          <span class="text-right font-mono text-[11px] ${bestEval.sServing <= initialEval.sServing ? 'text-emerald-600' : 'text-amber-600'}">
+            ${(bestEval.sServing - initialEval.sServing >= 0 ? '+' : '')}${(bestEval.sServing - initialEval.sServing).toFixed(1)}g
+          </span>
+        </div>
+        <div class="mt-2 pt-1 text-[11px] text-neutral-600">
+          <div class="font-mono text-[10px] uppercase text-neutral-400 mb-1">Batch Weight Adjustments:</div>
+          <div class="flex flex-wrap gap-2 text-xs font-mono">
+            <span class="bg-indigo-50 text-indigoAccent px-2 py-0.5 rounded border border-indigo-200">
+              ${ingProt ? ingProt.name : 'Protein'}: ${recipeCopy[protIdx].weightGrams}g → <strong>${bestState.wProt.toFixed(0)}g</strong>
+            </span>
+            ${sugarIdx >= 0 && sugarIdx !== protIdx ? `
+            <span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded border border-amber-200">
+              ${ingSugar ? ingSugar.name : 'Sweetener'}: ${recipeCopy[sugarIdx].weightGrams}g → <strong>${bestState.wSugar.toFixed(0)}g</strong>
+            </span>` : ''}
+            ${baseIdx >= 0 && baseIdx !== protIdx && baseIdx !== sugarIdx ? `
+            <span class="bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded border border-neutral-200">
+              ${ingBase ? ingBase.name : 'Base'}: ${recipeCopy[baseIdx].weightGrams}g → <strong>${bestState.wBase.toFixed(0)}g</strong>
+            </span>` : ''}
+          </div>
+        </div>
+      `;
+
+      const btnApply = document.getElementById('btnApplySolver');
+      btnApply.disabled = false;
+      btnApply.classList.remove('opacity-50', 'cursor-not-allowed');
+      btnApply.classList.add('btn-pulse');
+    }
+
+    function applyGoalSeekSolution() {
+      if (!solverPendingSolution) return;
+
+      const { protId, sugarId, baseId, newWeights } = solverPendingSolution;
+
+      currentRecipe.forEach(item => {
+        if (item.ingredientId === protId) item.weightGrams = Math.round(newWeights.wProt);
+        else if (item.ingredientId === sugarId && sugarId !== protId) item.weightGrams = Math.round(newWeights.wSugar);
+        else if (item.ingredientId === baseId && baseId !== protId && baseId !== sugarId) item.weightGrams = Math.round(newWeights.wBase);
+      });
+
+      closeGoalSeekModal();
+      renderRecipeTable();
+      recalculateAll();
+      showToast("⚡ Optimized formulation applied to recipe deck!");
     }
   </script>
 </body>
