@@ -1700,8 +1700,8 @@
       }
 
       // 21 CFR § 101.61 Sodium Content Claims
-      if (nutrients.sodium <= 5) {
-        claims.push({ title: "Sodium Free", rule: "21 CFR § 101.61(b)(1)", status: "approved", desc: `Contains ≤5mg sodium per serving.` });
+      if (nutrients.sodium < 5) {
+        claims.push({ title: "Sodium Free", rule: "21 CFR § 101.61(b)(1)", status: "approved", desc: `Contains <5mg sodium per serving.` });
       } else if (nutrients.sodium <= 35) {
         claims.push({ title: "Very Low Sodium", rule: "21 CFR § 101.61(b)(2)", status: "approved", desc: `Contains ≤35mg sodium per serving.` });
       } else if (nutrients.sodium <= 140) {
@@ -1709,7 +1709,7 @@
       }
 
       // 21 CFR § 101.62 Fat & Saturated Fat
-      if (nutrients.fat <= 0.5) {
+      if (nutrients.fat < 0.5) {
         claims.push({ title: "Fat Free", rule: "21 CFR § 101.62(b)(1)", status: "approved", desc: `<0.5g total fat per serving.` });
       } else if (nutrients.fat <= 3.0) {
         claims.push({ title: "Low Fat", rule: "21 CFR § 101.62(b)(2)", status: "approved", desc: `≤3g total fat per RACC/serving.` });
@@ -1723,7 +1723,7 @@
       if (nutrients.addedSugars === 0) {
         claims.push({ title: "No Added Sugars", rule: "21 CFR § 101.60(c)(2)", status: "approved", desc: `No sugars added during processing or packaging.` });
       }
-      if (nutrients.sugars <= 0.5) {
+      if (nutrients.sugars < 0.5) {
         claims.push({ title: "Sugar Free", rule: "21 CFR § 101.60(c)(1)", status: "approved", desc: `<0.5g total sugars per serving.` });
       }
 
