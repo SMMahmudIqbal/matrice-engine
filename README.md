@@ -76,6 +76,12 @@ Open `index.html` in any modern web browser:
 ```bash
 # On Windows PowerShell:
 Start-Process "index.html"
+
+# On macOS:
+open index.html
+
+# On Linux:
+xdg-open index.html
 ```
 
 No dependencies, build steps, or server installations required.
